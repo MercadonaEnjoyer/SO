@@ -1,0 +1,183 @@
+#include <stdio.h>
+#include <mysql.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main(int argc, char *argv[]) {
+	
+	MYSQL *conn;
+	int err;
+	MYSQL_RES *resultado;
+	MYSQL_ROW row;
+	
+	int id;
+	int idj;
+	int idp;
+	int puntos;
+	int tiempo;
+	char fecha[10];
+	char nombre[25];
+	char consulta[500];
+	int wins = 0;
+	int jugadas = 0;
+	
+	conn = mysql_init(NULL);
+	if (conn==NULL) {
+		printf ("Error al crear la conexion: %u %s\n", 
+				mysql_errno(conn), mysql_error(conn));
+		exit (1);
+	}
+	conn = mysql_real_connect (conn, "localhost","root", "mysql", NULL, 0, NULL, 0);
+	if (conn==NULL)
+	{
+		printf ("Error al inicializar la conexion: %u %s\n", 
+				mysql_errno(conn), mysql_error(conn));
+		exit (1);
+	}
+	mysql_query(conn, "drop database if exists juego;"); 
+	err=mysql_query(conn, "create database juego;");
+	if (err!=0) {
+		printf ("Error al crear la base de datos %u %s\n", 
+				mysql_errno(conn), mysql_error(conn));
+		exit (1);
+	}
+	err=mysql_query(conn, "use juego;");
+	if (err!=0)
+	{
+		printf ("Error al crear la base de datos %u %s\n", 
+				mysql_errno(conn), mysql_error(conn));
+		exit (1);
+	}
+	err=mysql_query(conn,
+					"CREATE TABLE jugador (id int not null primary key, nombre VARCHAR(20), contrase￱a VARCHAR(20))");
+	err=mysql_query(conn,
+					"CREATE TABLE partida (id int not null primary key, jugadores int, servidor VARCHAR(5))");
+	err=mysql_query(conn,
+					"CREATE TABLE historial (idp int, idj int, ganador varchar(2), puntos int, tiempo int, fecha varchar(11))");
+	if (err!=0)
+	{
+		printf ("Error al definir la tabla %u %s\n",
+				mysql_errno(conn), mysql_error(conn));
+		exit (1);
+	}
+	err=mysql_query (conn, "INSERT INTO jugador VALUES (1,'Kike','1234')");
+	err=mysql_query (conn, "INSERT INTO jugador VALUES (2,'Aran','1234')");
+	err=mysql_query (conn, "INSERT INTO jugador VALUES (3,'Jana','1234')");
+	err=mysql_query (conn, "INSERT INTO jugador VALUES (4,'Juan','1234')");
+	
+	err=mysql_query (conn, "INSERT INTO partida VALUES (1,2,'EUW')");
+	err=mysql_query (conn, "INSERT INTO partida VALUES (2,2,'EUW')");
+	err=mysql_query (conn, "INSERT INTO partida VALUES (3,4,'EUW')");
+	err=mysql_query (conn, "INSERT INTO partida VALUES (4,2,'EUW')");
+	
+	err=mysql_query (conn, "INSERT INTO historial VALUES (1,1,'no',9,555,'03/10/2022')");
+	err=mysql_query (conn, "INSERT INTO historial VALUES (1,2,'si',16,555,'03/10/2022')");
+	err=mysql_query (conn, "INSERT INTO historial VALUES (2,3,'si',16,100,'03/10/2022')");
+	err=mysql_query (conn, "INSERT INTO historial VALUES (2,2,'no',8,100,'03/10/2022')");
+	err=mysql_query (conn, "INSERT INTO historial VALUES (3,3,'si',16,600,'05/10/2022')");
+	err=mysql_query (conn, "INSERT INTO historial VALUES (3,1,'si',16,600,'05/10/2022')");
+	err=mysql_query (conn, "INSERT INTO historial VALUES (3,2,'no',3,600,'05/10/2022')");
+	err=mysql_query (conn, "INSERT INTO historial VALUES (3,4,'no',3,600,'05/10/2022')");
+	err=mysql_query (conn, "INSERT INTO historial VALUES (4,3,'si',16,33,'05/10/2022')");
+	err=mysql_query (conn, "INSERT INTO historial VALUES (4,4,'no',5,33,'05/10/2022')");
+	
+	if (err!=0)
+	{
+		printf("Error al insertar datos en la base %u %s\n",
+			   mysql_errno(conn),mysql_error(conn));
+		exit(1);
+	}
+	err=mysql_query (conn, "SELECT * FROM jugador");
+	if (err!=0)
+	{
+		printf("Error al consultar datos de la base %u %s\n",
+			   mysql_errno(conn),mysql_error(conn));
+		exit(1);
+	}
+	resultado = mysql_store_result (conn);
+	row = mysql_fetch_row(resultado);
+	if(row==NULL)
+		printf("No se han obtenido datos de consulta\n");
+	else
+	{
+		while (row != NULL)
+		{
+			id = atoi(row[1]);
+			printf("ID: %d, Nombre: %s, Contrase￱a: %s\n", id, row[1], row[2]);
+			row = mysql_fetch_row(resultado);
+		}
+	}
+	err=mysql_query (conn, "SELECT * FROM historial");
+	if (err!=0)
+	{
+		printf("Error al consultar datos de la base %u %s\n",
+				mysql_errno(conn),mysql_error(conn));
+		exit(1);
+	}
+	resultado = mysql_store_result (conn);
+	row = mysql_fetch_row(resultado);
+	if(row==NULL)
+		printf("No se han obtenido datos de consulta\n");
+	else
+	{
+		while (row != NULL)
+		{
+			idp = atoi(row[0]);
+			idj = atoi(row[1]);
+			puntos = atoi(row[3]);
+			tiempo = atoi(row[4]);
+			printf("IDpartida: %d,IDjugador: %d, Ganador?: %s, Puntos: %d, Tiempo: %d, Fecha: %s\n", idp, idj, row[2], puntos, tiempo, row[5]);
+			row = mysql_fetch_row(resultado);
+		}
+	}
+	
+	printf ("Escriba el nombre del jugador: \n"); 
+	scanf ("%s", nombre);
+	printf ("Que fecha deseas buscar? Utilize formato xx/xx/xxxx\n"); 
+	scanf ("%s", fecha);
+	strcpy (consulta,"SELECT count(historial.idj) FROM (jugador,historial) where historial.fecha = '");
+	strcat (consulta,fecha);
+	strcat (consulta, "' and jugador.nombre = '");
+	strcat (consulta,nombre);
+	strcat (consulta,"' and historial.idj = jugador.id");
+	strcat (consulta," and historial.ganador = 'si';");
+	err=mysql_query (conn, consulta); 
+	
+	if (err!=0) {
+		printf ("Error al consultar datos de la base %u %s\n",
+				mysql_errno(conn), mysql_error(conn));
+		exit (1);
+	}
+	
+	resultado = mysql_store_result (conn);
+	row = mysql_fetch_row (resultado);
+	wins = atoi(row[0]);
+	strcpy (consulta,"SELECT count(historial.idj) FROM (jugador,historial) where historial.fecha = '");
+	strcat (consulta,fecha);
+	strcat (consulta, "' and jugador.nombre = '");
+	strcat (consulta,nombre);
+	strcat (consulta,"' and historial.idj = jugador.id;");
+	err=mysql_query (conn, consulta); 
+	
+	if (err!=0) {
+		printf ("Error al consultar datos de la base %u %s\n",
+				mysql_errno(conn), mysql_error(conn));
+		exit (1);
+	}
+	
+	resultado = mysql_store_result (conn);
+	row = mysql_fetch_row (resultado);
+	jugadas = atoi(row[0]);
+	
+	if (row == NULL)
+		printf ("No se han obtenido datos en la consulta\n");
+	else
+	{
+		
+		printf ("Victorias: %d de %d jugadas\n", wins, jugadas);
+		
+	}
+	
+	mysql_close (conn);
+	exit(0);
+}
