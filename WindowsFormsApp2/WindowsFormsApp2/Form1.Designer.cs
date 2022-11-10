@@ -43,6 +43,10 @@
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.DESCONECTAR = new System.Windows.Forms.Button();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.lConectados = new System.Windows.Forms.ToolStripMenuItem();
+            this.recargar = new System.Windows.Forms.Button();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // LOGIN
@@ -186,11 +190,44 @@
             this.DESCONECTAR.UseVisualStyleBackColor = true;
             this.DESCONECTAR.Click += new System.EventHandler(this.DESCONECTAR_Click);
             // 
+            // menuStrip1
+            // 
+            this.menuStrip1.BackColor = System.Drawing.SystemColors.Control;
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.lConectados});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(800, 34);
+            this.menuStrip1.TabIndex = 15;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // lConectados
+            // 
+            this.lConectados.AutoSize = false;
+            this.lConectados.AutoToolTip = true;
+            this.lConectados.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.lConectados.Name = "lConectados";
+            this.lConectados.Size = new System.Drawing.Size(122, 30);
+            this.lConectados.Text = "Conectados";
+            this.lConectados.Visible = false;
+            // 
+            // recargar
+            // 
+            this.recargar.Location = new System.Drawing.Point(130, 5);
+            this.recargar.Name = "recargar";
+            this.recargar.Size = new System.Drawing.Size(125, 23);
+            this.recargar.TabIndex = 16;
+            this.recargar.Text = "Recargar conectados";
+            this.recargar.UseVisualStyleBackColor = true;
+            this.recargar.Visible = false;
+            this.recargar.Click += new System.EventHandler(this.recargar_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.recargar);
             this.Controls.Add(this.DESCONECTAR);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label4);
@@ -206,9 +243,12 @@
             this.Controls.Add(this.QUERY1);
             this.Controls.Add(this.SIGNIN);
             this.Controls.Add(this.LOGIN);
+            this.Controls.Add(this.menuStrip1);
             this.Name = "Form1";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -231,6 +271,9 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Button DESCONECTAR;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem lConectados;
+        private System.Windows.Forms.Button recargar;
     }
 }
 

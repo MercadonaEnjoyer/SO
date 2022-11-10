@@ -28,14 +28,12 @@ namespace WindowsFormsApp2
         private void LOGIN_Click(object sender, EventArgs e)//iniciar sesion 
         {
             IPAddress direc = IPAddress.Parse("192.168.56.101");
-            IPEndPoint ipep = new IPEndPoint(direc, 9050);
+            IPEndPoint ipep = new IPEndPoint(direc, 9090);
 
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
                 server.Connect(ipep);
-                this.BackColor = Color.Green;
-
                 
 
                 string login = "0" + "-" + USERNAME.Text + "-" + PASSWORD.Text;
@@ -49,6 +47,9 @@ namespace WindowsFormsApp2
                 if (login == "0-0")
                 {
                     MessageBox.Show("Has accedido a la cuenta");
+                    this.BackColor = Color.Green;
+                    lConectados.BackColor = Color.Green;
+                    menuStrip1.BackColor = Color.Green;
                     label3.Visible = true;
                     label4.Visible = true;
                     label5.Visible = true;
@@ -57,8 +58,11 @@ namespace WindowsFormsApp2
                     QUERY1.Visible = true;
                     QUERY2.Visible = true;
                     QUERY3.Visible = true;
+                    lConectados.Visible = true;
+                    recargar.Visible = true;
+                    USERNAME.Enabled = false;
+                    PASSWORD.Enabled = false;
                 }
-                MessageBox.Show("mensaje de log in");
                 if (login == "Error")
                 {
                     MessageBox.Show("Usuario o contraseña incorrectos");
@@ -76,7 +80,7 @@ namespace WindowsFormsApp2
         {
 
             IPAddress direc = IPAddress.Parse("192.168.56.101");
-            IPEndPoint ipep = new IPEndPoint(direc, 9050);
+            IPEndPoint ipep = new IPEndPoint(direc, 9090);
 
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
@@ -95,8 +99,9 @@ namespace WindowsFormsApp2
                 if (SIGNIN == "4-0")
                 {
                     MessageBox.Show("Registrado correctamente");
+                    USERNAME.Enabled = false;
+                    PASSWORD.Enabled = false;
                 }
-                MessageBox.Show("mensaje de sign in");
                 if (SIGNIN == "ERROR")
                 {
                     MessageBox.Show("Ha habido un problema con la creación de cuenta");
@@ -112,7 +117,7 @@ namespace WindowsFormsApp2
         private void QUERY1_Click(object sender, EventArgs e)//jugadores de la partida mas larga
         {
             IPAddress direc = IPAddress.Parse("192.168.56.101");
-            IPEndPoint ipep = new IPEndPoint(direc, 9050);
+            IPEndPoint ipep = new IPEndPoint(direc, 9090);
 
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
@@ -157,7 +162,7 @@ namespace WindowsFormsApp2
         private void QUERY2_Click(object sender, EventArgs e)// nombre del jugador con mas partidas 
         {
             IPAddress direc = IPAddress.Parse("192.168.56.101");
-            IPEndPoint ipep = new IPEndPoint(direc, 9050);
+            IPEndPoint ipep = new IPEndPoint(direc, 9090);
 
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
@@ -172,10 +177,10 @@ namespace WindowsFormsApp2
 
                 byte[] msg2 = new byte[80];
                 server.Receive(msg2);
-                QUERY2 = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-                string mensaje2 = QUERY2.Split('-')[1];
+                QUERY2 = Encoding.ASCII.GetString(msg2).Split('\0')[0];           
                 if (QUERY2 != "Error")
                 {
+                    string mensaje2 = QUERY2.Split('-')[1];
                     MessageBox.Show("El jugador " + mensaje2 + " fue el jugador con mas partidas el dia " + DATE.Text);
                 }
                 if (QUERY2 == "Error")
@@ -193,7 +198,7 @@ namespace WindowsFormsApp2
         private void QUERY3_Click(object sender, EventArgs e)//winratio de un jugador un dia
         {
             IPAddress direc = IPAddress.Parse("192.168.56.101");
-            IPEndPoint ipep = new IPEndPoint(direc, 9050);
+            IPEndPoint ipep = new IPEndPoint(direc, 9090);
 
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
@@ -232,7 +237,7 @@ namespace WindowsFormsApp2
         private void DESCONECTAR_Click(object sender, EventArgs e)//desconectar
         {
             IPAddress direc = IPAddress.Parse("192.168.56.101");
-            IPEndPoint ipep = new IPEndPoint(direc, 9050);
+            IPEndPoint ipep = new IPEndPoint(direc, 9090);
 
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
@@ -240,7 +245,7 @@ namespace WindowsFormsApp2
                 server.Connect(ipep);
                 this.BackColor = Color.Green;
 
-                string CERRAR = "5" + "-";
+                string CERRAR = "5" + "-" + USERNAME.Text;
                 byte[] mensaje = System.Text.Encoding.ASCII.GetBytes(CERRAR);
 
                 server.Send(mensaje);
@@ -253,6 +258,47 @@ namespace WindowsFormsApp2
             {
                 MessageBox.Show("DESCONECTADO DEL SERVIDOR");
                 return;
+            }
+        }
+        private List<String> dameListaConectados()
+        {
+            IPAddress direc = IPAddress.Parse("192.168.56.101");
+            IPEndPoint ipep = new IPEndPoint(direc, 9090);
+
+            List<String> conectados = new List<String>();
+
+            server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+            server.Connect(ipep);
+
+            string lconectados = "6" + "-";
+            byte[] mensaje = System.Text.Encoding.ASCII.GetBytes(lconectados);
+
+            server.Send(mensaje);
+            byte[] msg2 = new byte[80];
+            server.Receive(msg2);
+            lconectados = Encoding.ASCII.GetString(msg2).Split('\0')[0];
+            int numeroConectados = Convert.ToInt32(lconectados.Split('/')[0]);
+            int i = 1;
+            while (i < lconectados.Split('/').Length)
+            {
+                string nombre = lconectados.Split('/')[i];
+                conectados.Add(nombre);
+                i++;
+            }
+            return conectados;
+        }
+
+        private void recargar_Click(object sender, EventArgs e)
+        {
+            int id = 0;
+            lConectados.DropDownItems.Clear();
+            foreach (String items in dameListaConectados())
+            {
+                ToolStripMenuItem item = new ToolStripMenuItem(items);
+                item.Tag = id;
+                id++;
+                lConectados.DropDownItems.Add(item);
             }
         }
     }    
