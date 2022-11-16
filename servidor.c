@@ -29,16 +29,18 @@ void winratio(char nombre[25], char fecha[11],  char respuesta[512]);
 void registrar(char nombre[25], char contrasena[25],  char respuesta[512]);
 void *atenderCliente(void *socket);
 
+
 //------------------------------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) 
 {
-int sock_conn, sock_listen;
+	int sock_conn, sock_listen;
 	struct sockaddr_in serv_adr;
 	pthread_t thread;
 	lista.num = 0;
 	int conexion = 0;
 	int sockets[100];
+	int puerto = 5060;
 	int i = 0;
 	
 	if ((sock_listen = socket(AF_INET, SOCK_STREAM, 0)) < 0)
@@ -47,9 +49,10 @@ int sock_conn, sock_listen;
 	memset(&serv_adr, 0, sizeof(serv_adr));
 	serv_adr.sin_family = AF_INET;
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY); 
-	serv_adr.sin_port = htons(9090);
+	serv_adr.sin_port = htons(puerto);
 	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
 		printf ("Error al bind");
+	
 	if (listen(sock_listen, 3) < 0)
 		printf("Error en el Listen");
 	int rc;
@@ -72,7 +75,6 @@ int sock_conn, sock_listen;
 
 
 //----------------------------------------------------------------------------------------
-
 void dameConectados(lConectados *lista, char conectados [300])
 {
 	int i;
@@ -82,8 +84,6 @@ void dameConectados(lConectados *lista, char conectados [300])
 		sprintf(conectados, "%s/%s", conectados, lista->conectados[i].nombre);
 	}
 }
-
-//----------------------------------------------------------------------------------------
 
 int damePos (lConectados * lista, char nombre[20])
 {
@@ -102,7 +102,6 @@ int damePos (lConectados * lista, char nombre[20])
 	else 
 		return -1;
 }
-//----------------------------------------------------------------------------------------
 
 int desconectar (lConectados *lista, char nombre[20])
 {
@@ -120,7 +119,6 @@ int desconectar (lConectados *lista, char nombre[20])
 		return 0;
 	}
 }
-//----------------------------------------------------------------------------------------
 
 int conectar (lConectados *lista, char nombre[20], int socket)
 {
@@ -135,7 +133,6 @@ int conectar (lConectados *lista, char nombre[20], int socket)
 		return 0;
 	}
 }
-//----------------------------------------------------------------------------------------
 
 void *atenderCliente (void *socket)
 {
@@ -160,9 +157,20 @@ void *atenderCliente (void *socket)
 		ret=read(sock_conn,peticion, sizeof(peticion));
 		printf ("Recibido\n");
 		peticion[ret]='\0';
-		printf ("Peticion: %s\n",peticion);
-		char *p = strtok(peticion, "-");
-		int codigo = atoi(p);
+		int error = 1;
+		int codigo = 9999;
+		char *p;
+		if(strlen(peticion) < 2){
+			error = 0;
+		}
+		if (strcmp(peticion, "") != 0){
+			printf ("Peticion: %s\n",peticion);
+			p = strtok(peticion, "-");
+			codigo = atoi(p);
+		}		
+		if (error == 0){
+			codigo = 9999;
+		}
 		if(codigo == 0)
 		{
 			pthread_mutex_lock(&mutex);
@@ -171,7 +179,7 @@ void *atenderCliente (void *socket)
 			printf("Codigo de conexion: %d\n", r);
 			p = strtok(NULL, "-");
 			strcpy(contrasena, p);
-			printf("Codigo: %d, Nombre: %s y Contraseï¿±a: %s\n", codigo, nombre, contrasena);
+			printf("Codigo: %d, Nombre: %s y Contraseña: %s\n", codigo, nombre, contrasena);
 			acceso(nombre, contrasena, contestacion);
 			if(strcmp (contestacion, "Error") != 0)
 				r = conectar(&lista, nombre, socket);
@@ -180,7 +188,7 @@ void *atenderCliente (void *socket)
 			write (sock_conn,respuesta,strlen(respuesta));
 			pthread_mutex_unlock(&mutex);
 		}
-		if(codigo == 1)
+		else if(codigo == 1)
 		{
 			pthread_mutex_lock(&mutex);
 			p = strtok(NULL, "-");
@@ -191,7 +199,7 @@ void *atenderCliente (void *socket)
 			write (sock_conn,respuesta,strlen(respuesta));
 			pthread_mutex_unlock(&mutex);
 		}
-		if(codigo == 2)
+		else if(codigo == 2)
 		{
 			pthread_mutex_lock(&mutex);
 			p = strtok(NULL, "-");
@@ -202,7 +210,7 @@ void *atenderCliente (void *socket)
 			write (sock_conn,respuesta,strlen(respuesta));
 			pthread_mutex_unlock(&mutex);
 		}
-		if(codigo == 3)
+		else if(codigo == 3)
 		{
 			pthread_mutex_lock(&mutex);
 			p = strtok(NULL, "-");
@@ -215,7 +223,7 @@ void *atenderCliente (void *socket)
 			write (sock_conn,respuesta,strlen(respuesta));
 			pthread_mutex_unlock(&mutex);
 		}
-		if(codigo == 4)
+		else if(codigo == 4)
 		{
 			pthread_mutex_lock(&mutex);
 			p = strtok(NULL, "-");
@@ -228,7 +236,7 @@ void *atenderCliente (void *socket)
 			write (sock_conn,respuesta,strlen(respuesta));
 			pthread_mutex_unlock(&mutex);
 		}
-		if(codigo == 5)
+		else if(codigo == 5)
 		{
 			pthread_mutex_lock(&mutex);
 			p = strtok(NULL, "-");
@@ -241,7 +249,7 @@ void *atenderCliente (void *socket)
 			close(sock_conn);
 			pthread_mutex_unlock(&mutex);
 		}
-		if(codigo == 6)
+		else if(codigo == 6)
 		{
 			pthread_mutex_lock(&mutex);
 			dameConectados(&lista, conectados);
@@ -250,9 +258,12 @@ void *atenderCliente (void *socket)
 			write (sock_conn, respuesta, strlen(respuesta));
 			pthread_mutex_unlock(&mutex);
 		}
+		else{
+			printf("Peticion fantasma\n");
+		}
 	}
 }
-//----------------------------------------------------------------------------------------
+
 
 void acceso(char nombre[25], char contrasena[25], char respuesta[512])
 {
@@ -277,7 +288,7 @@ void acceso(char nombre[25], char contrasena[25], char respuesta[512])
 				mysql_errno(conn), mysql_error(conn));
 		exit (1);
 	}
-	err=mysql_query(conn, "use juego;");
+	err=mysql_query(conn, "use T7_BBDDJuego;");
 	if (err!=0)
 	{
 		printf ("Error al acceder a la base de datos %u %s\n", 
@@ -286,7 +297,7 @@ void acceso(char nombre[25], char contrasena[25], char respuesta[512])
 	}
 	strcpy (consulta,"select id from jugador where nombre = '");
 	strcat (consulta, nombre);
-	strcat (consulta,"' and contraseï¿±a = '");
+	strcat (consulta,"' and contraseña = '");
 	strcat (consulta, contrasena);
 	strcat (consulta,"';");
 	err=mysql_query (conn, consulta); 
@@ -300,7 +311,7 @@ void acceso(char nombre[25], char contrasena[25], char respuesta[512])
 	row = mysql_fetch_row (resultado);
 	if (row == NULL)
 	{
-		printf ("Nombre o contraseï¿±a incorrectos\n");
+		printf ("Nombre o contraseña incorrectos\n");
 		acceso = -1;
 		sprintf(respuesta, "Error");
 	}	
@@ -313,6 +324,8 @@ void acceso(char nombre[25], char contrasena[25], char respuesta[512])
 }
 
 //--------------------------------------------------------------------------------------------------
+
+
 
 void jugadorPartidaMasLarga(char fecha[11], char respuesta[512])
 {
@@ -337,7 +350,7 @@ void jugadorPartidaMasLarga(char fecha[11], char respuesta[512])
 				mysql_errno(conn), mysql_error(conn));
 		exit (1);
 	}
-	err=mysql_query(conn, "use juego;");
+	err=mysql_query(conn, "use T7_BBDDJuego;");
 	if (err!=0)
 	{
 		printf ("Error al acceder a la base de datos %u %s\n", 
@@ -405,7 +418,7 @@ void jugadorMasPartidas(char fecha[11], char respuesta[512])
 				mysql_errno(conn), mysql_error(conn));
 		exit (1);
 	}
-	err=mysql_query(conn, "use juego;");
+	err=mysql_query(conn, "use T7_BBDDJuego;");
 	if (err!=0)
 	{
 		printf ("Error al acceder a la base de datos %u %s\n", 
@@ -464,7 +477,7 @@ void winratio(char nombre[25], char fecha[11], char respuesta[512])
 				mysql_errno(conn), mysql_error(conn));
 		exit (1);
 	}
-	err=mysql_query(conn, "use juego;");
+	err=mysql_query(conn, "use T7_BBDDJuego;");
 	if (err!=0)
 	{
 		printf ("Error al acceder a la base de datos %u %s\n", 
@@ -545,7 +558,7 @@ void registrar(char nombre[25], char contrasena[25], char respuesta[512])
 				mysql_errno(conn), mysql_error(conn));
 		exit (1);
 	}
-	err=mysql_query(conn, "use juego;");
+	err=mysql_query(conn, "use T7_BBDDJuego;");
 	if (err!=0)
 	{
 		printf ("Error al acceder a la base de datos %u %s\n", 
@@ -574,3 +587,4 @@ void registrar(char nombre[25], char contrasena[25], char respuesta[512])
 	}
 	
 }
+

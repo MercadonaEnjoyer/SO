@@ -27,8 +27,8 @@ namespace WindowsFormsApp2
 
         private void LOGIN_Click(object sender, EventArgs e)//iniciar sesion 
         {
-            IPAddress direc = IPAddress.Parse("192.168.56.101");
-            IPEndPoint ipep = new IPEndPoint(direc, 9090);
+            IPAddress direc = IPAddress.Parse("192.168.56.102");
+            IPEndPoint ipep = new IPEndPoint(direc, 5060);
 
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
@@ -79,8 +79,8 @@ namespace WindowsFormsApp2
         private void SIGNIN_Click(object sender, EventArgs e)//registrarse
         {
 
-            IPAddress direc = IPAddress.Parse("192.168.56.101");
-            IPEndPoint ipep = new IPEndPoint(direc, 9090);
+            IPAddress direc = IPAddress.Parse("192.168.56.102");
+            IPEndPoint ipep = new IPEndPoint(direc, 5060);
 
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
@@ -116,8 +116,8 @@ namespace WindowsFormsApp2
 
         private void QUERY1_Click(object sender, EventArgs e)//jugadores de la partida mas larga
         {
-            IPAddress direc = IPAddress.Parse("192.168.56.101");
-            IPEndPoint ipep = new IPEndPoint(direc, 9090);
+            IPAddress direc = IPAddress.Parse("192.168.56.102");
+            IPEndPoint ipep = new IPEndPoint(direc, 5060);
 
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
@@ -161,8 +161,8 @@ namespace WindowsFormsApp2
 
         private void QUERY2_Click(object sender, EventArgs e)// nombre del jugador con mas partidas 
         {
-            IPAddress direc = IPAddress.Parse("192.168.56.101");
-            IPEndPoint ipep = new IPEndPoint(direc, 9090);
+            IPAddress direc = IPAddress.Parse("192.168.56.102");
+            IPEndPoint ipep = new IPEndPoint(direc, 5060);
 
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
@@ -197,8 +197,8 @@ namespace WindowsFormsApp2
 
         private void QUERY3_Click(object sender, EventArgs e)//winratio de un jugador un dia
         {
-            IPAddress direc = IPAddress.Parse("192.168.56.101");
-            IPEndPoint ipep = new IPEndPoint(direc, 9090);
+            IPAddress direc = IPAddress.Parse("192.168.56.102");
+            IPEndPoint ipep = new IPEndPoint(direc, 5060);
 
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
@@ -236,8 +236,8 @@ namespace WindowsFormsApp2
 
         private void DESCONECTAR_Click(object sender, EventArgs e)//desconectar
         {
-            IPAddress direc = IPAddress.Parse("192.168.56.101");
-            IPEndPoint ipep = new IPEndPoint(direc, 9090);
+            IPAddress direc = IPAddress.Parse("192.168.56.102");
+            IPEndPoint ipep = new IPEndPoint(direc, 5060);
 
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
@@ -251,6 +251,20 @@ namespace WindowsFormsApp2
                 server.Send(mensaje);
                 server.Shutdown(SocketShutdown.Both);
                 this.BackColor = Color.Gray;
+                lConectados.BackColor = Color.Green;
+                menuStrip1.BackColor = Color.Green;
+                label3.Visible = false;
+                label4.Visible = false;
+                label5.Visible = false;
+                NAME.Visible = false;
+                DATE.Visible = false;
+                QUERY1.Visible = false;
+                QUERY2.Visible = false;
+                QUERY3.Visible = false;
+                lConectados.Visible = false;
+                recargar.Visible = false;
+                USERNAME.Enabled = true;
+                PASSWORD.Enabled = true;
                 server.Close();
                 MessageBox.Show("DESCONECTADO DEL SERVIDOR");
             }
@@ -262,8 +276,8 @@ namespace WindowsFormsApp2
         }
         private List<String> dameListaConectados()
         {
-            IPAddress direc = IPAddress.Parse("192.168.56.101");
-            IPEndPoint ipep = new IPEndPoint(direc, 9090);
+            IPAddress direc = IPAddress.Parse("192.168.56.102");
+            IPEndPoint ipep = new IPEndPoint(direc, 5060);
 
             List<String> conectados = new List<String>();
 

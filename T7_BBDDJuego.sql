@@ -1,7 +1,7 @@
-DROP DATABASE IF EXISTS juego;
-CREATE DATABASE juego; 
+DROP DATABASE IF EXISTS T7_BBDDJuego;
+CREATE DATABASE T7_BBDDJuego; 
 
-USE juego;
+USE T7_BBDDJuego;
 
 create table jugador(
 	id int,
@@ -47,5 +47,14 @@ insert into historial values (5,3,'si',16,2,'06/10/2022');
 insert into historial values (5,2,'no',9,2,'06/10/2022');
 insert into historial values (6,3,'no',9,2,'07/10/2022');
 insert into historial values (6,1,'si',16,2,'07/10/2022');
+
+
+
+
+
+
+
+
+
 
 
