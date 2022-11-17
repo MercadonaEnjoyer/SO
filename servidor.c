@@ -22,6 +22,8 @@ typedef struct {
 
 lConectados lista;
 
+int sockets[100];
+
 void acceso(char nombre[25], char contrasena[25],  char respuesta[512]);
 void jugadorPartidaMasLarga(char fecha[11],  char respuesta[512]);
 void jugadorMasPartidas(char fecha[11], char respuesta[512]);
@@ -39,7 +41,6 @@ int main(int argc, char *argv[])
 	pthread_t thread;
 	lista.num = 0;
 	int conexion = 0;
-	int sockets[100];
 	int puerto = 5060;
 	int i = 0;
 	
@@ -81,7 +82,7 @@ void dameConectados(lConectados *lista, char conectados [300])
 	sprintf (conectados, "%d", lista->num);
 	for (i = 0; i < lista->num; i++)
 	{
-		sprintf(conectados, "%s/%s", conectados, lista->conectados[i].nombre);
+		sprintf(conectados, "%s-%s", conectados, lista->conectados[i].nombre);
 	}
 }
 
@@ -232,6 +233,9 @@ void *atenderCliente (void *socket)
 			strcpy(contrasena, p);
 			printf("Codigo: %d, Fecha: %s y Nombre: %s\n", codigo, contrasena, nombre);
 			registrar(nombre, contrasena, contestacion);
+			if(strcmp (contestacion, "Error") != 0)
+				r = conectar(&lista, nombre, socket);
+			dameConectados(&lista, conectados);
 			sprintf(respuesta, "%s", contestacion);
 			write (sock_conn,respuesta,strlen(respuesta));
 			pthread_mutex_unlock(&mutex);
@@ -249,14 +253,18 @@ void *atenderCliente (void *socket)
 			close(sock_conn);
 			pthread_mutex_unlock(&mutex);
 		}
-		else if(codigo == 6)
+		else if (codigo == 1 || codigo == 4 || codigo == 5)
 		{
 			pthread_mutex_lock(&mutex);
+			int j;
 			dameConectados(&lista, conectados);
-			sprintf(respuesta, "%s", conectados);
+			sprintf(respuesta, "6-%s", conectados);
 			printf("%s\n", respuesta);
-			write (sock_conn, respuesta, strlen(respuesta));
 			pthread_mutex_unlock(&mutex);
+			for (j = 0; j < lista.num; j++)
+			{
+				write (sockets[j],respuesta,strlen(respuesta));
+			}
 		}
 		else{
 			printf("Peticion fantasma\n");
