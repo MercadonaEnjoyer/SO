@@ -34,38 +34,43 @@ namespace WindowsFormsApp2
                 byte[] msg2 = new byte[80];
                 server.Receive(msg2);
                 string [] trozos = Encoding.ASCII.GetString(msg2).Split('-');
-                int codigo = Convert.ToInt32(trozos[1]);
+                int codigo = Convert.ToInt32(trozos[0]);
+                int nConectados = Convert.ToInt32(trozos[1]);
                 string mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
                 switch (codigo)
                 {
                     case 0:
                         if (mensaje == "0-0")
                         {
-                            MessageBox.Show("Has accedido a la cuenta");
-                            this.BackColor = Color.Green;
-                            lConectados.BackColor = Color.Green;
-                            menuStrip1.BackColor = Color.Green;
-                            label3.Visible = true;
-                            label4.Visible = true;
-                            label5.Visible = true;
-                            NAME.Visible = true;
-                            DATE.Visible = true;
-                            QUERY1.Visible = true;
-                            QUERY2.Visible = true;
-                            QUERY3.Visible = true;
-                            lConectados.Visible = true;
-                            USERNAME.Enabled = false;
-                            PASSWORD.Enabled = false;
-                            SIGNIN.Enabled = true;
-                            LOGIN.Enabled = false;
+                            Invoke(new Action(() =>
+                            {
+
+                               MessageBox.Show("Has accedido a la cuenta");
+                               this.BackColor = Color.Green;
+                               lConectados.BackColor = Color.Green;
+                               menuStrip1.BackColor = Color.Green;
+                               label3.Visible = true;
+                               label4.Visible = true;
+                               label5.Visible = true;
+                               NAME.Visible = true;
+                               DATE.Visible = true;
+                               QUERY1.Visible = true;
+                               QUERY2.Visible = true;
+                               QUERY3.Visible = true;
+                               lConectados.Visible = true;
+                               USERNAME.Enabled = false;
+                               PASSWORD.Enabled = false;
+                               SIGNIN.Enabled = false;
+                               LOGIN.Enabled = false;
+                            }));
                         }
-                        if (mensaje == "Error")
+                        if (mensaje == "0-Error")
                         {
                             MessageBox.Show("Usuario o contraseña incorrectos");
                         }
                         break;
                     case 1:
-                        if (mensaje != "Error")
+                        if (mensaje != "1-Error")
                         {
                             int i = 1;
                             string jugadores = "Los jugadores que jugaron la partida mas larga son : " + mensaje.Split('-')[i];
@@ -77,25 +82,25 @@ namespace WindowsFormsApp2
                             }
                             MessageBox.Show(jugadores);
                         }
-                        if (mensaje == "Error")
+                        if (mensaje == "1-Error")
                         {
                             MessageBox.Show("No hay datos coincidentes");
                         }
                         break;
                     case 2:
 
-                        if (mensaje != "Error")
+                        if (mensaje != "2-Error")
                         {
                             string mensaje2 = mensaje.Split('-')[1];
                             MessageBox.Show("El jugador " + mensaje2 + " fue el jugador con mas partidas el dia " + DATE.Text);
                         }
-                        if (mensaje == "Error")
+                        if (mensaje == "2-Error")
                         {
                             MessageBox.Show("No hay datos coincidentes");
                         }
                         break;
                     case 3:
-                        if (mensaje != "Error")
+                        if (mensaje != "3-Error")
                         {
                             double Wins = Convert.ToDouble(mensaje.Split('-')[1]);
                             double Played = Convert.ToDouble(mensaje.Split('-')[2]);
@@ -103,7 +108,7 @@ namespace WindowsFormsApp2
                             wr = (Wins / Played) * 100;
                             MessageBox.Show("El jugador " + NAME.Text + " tuvo un winratio de " + wr + "% el dia " + DATE.Text);
                         }
-                        if (mensaje == "Error")
+                        if (mensaje == "3-Error")
                         {
                             MessageBox.Show("No hay datos coincidentes");
                         }
@@ -111,61 +116,50 @@ namespace WindowsFormsApp2
                     case 4:
                         if (mensaje == "4-0")
                         {
-                            MessageBox.Show("Registrado correctamente");
-                            MessageBox.Show("Has accedido a la cuenta");
-                            this.BackColor = Color.Green;
-                            lConectados.BackColor = Color.Green;
-                            menuStrip1.BackColor = Color.Green;
-                            label3.Visible = true;
-                            label4.Visible = true;
-                            label5.Visible = true;
-                            NAME.Visible = true;
-                            DATE.Visible = true;
-                            QUERY1.Visible = true;
-                            QUERY2.Visible = true;
-                            QUERY3.Visible = true;
-                            lConectados.Visible = true;
-                            USERNAME.Enabled = false;
-                            PASSWORD.Enabled = false;
-                            SIGNIN.Enabled = false;
-                            LOGIN.Enabled = false;
+                            Invoke(new Action(() =>
+                            {
+                                    MessageBox.Show("Registrado correctamente");
+                                MessageBox.Show("Has accedido a la cuenta");
+                                this.BackColor = Color.Green;
+                                lConectados.BackColor = Color.Green;
+                                menuStrip1.BackColor = Color.Green;
+                                label3.Visible = true;
+                                label4.Visible = true;
+                                label5.Visible = true;
+                                NAME.Visible = true;
+                                DATE.Visible = true;
+                                QUERY1.Visible = true;
+                                QUERY2.Visible = true;
+                                QUERY3.Visible = true;
+                                lConectados.Visible = true;
+                                USERNAME.Enabled = false;
+                                PASSWORD.Enabled = false;
+                                SIGNIN.Enabled = false;
+                                LOGIN.Enabled = false;
+                            }));
                         }
-                        if (mensaje == "ERROR")
+                        if (mensaje == "4-ERROR")
                         {
                             MessageBox.Show("Ha habido un problema con la creación de cuenta");
                         }
                         break;
                     case 5:
-                        server.Shutdown(SocketShutdown.Both);
-                        this.BackColor = Color.Gray;
-                        lConectados.BackColor = Color.Gray;
-                        menuStrip1.BackColor = Color.Gray;
-                        label3.Visible = false;
-                        label4.Visible = false;
-                        label5.Visible = false;
-                        NAME.Visible = false;
-                        DATE.Visible = false;
-                        QUERY1.Visible = false;
-                        QUERY2.Visible = false;
-                        QUERY3.Visible = false;
-                        lConectados.Visible = false;
-                        USERNAME.Enabled = true;
-                        PASSWORD.Enabled = true;
-                        SIGNIN.Enabled = true;
-                        LOGIN.Enabled = true;
-                        server.Close();
-                        MessageBox.Show("DESCONECTADO DEL SERVIDOR");
+                        
                         break;
                     case 6:
                         int id = 0;
                         lConectados.DropDownItems.Clear();
-                        foreach (String items in dameListaConectados(mensaje))
+                        foreach (String items in dameListaConectados(mensaje, nConectados))
                         {
                             ToolStripMenuItem item = new ToolStripMenuItem(items);
                             item.Tag = id;
                             id++;
                             lConectados.DropDownItems.Add(item);
+                            item.Click += new EventHandler(item_Click);
                         }
+                        break;
+                    case 7:
+                        //Recivir una peticion que te permita aceptar o denegar partida y envie una peticion 7-Aceptada o 7-Rechazada
                         break;
                 }
             }
@@ -213,7 +207,11 @@ namespace WindowsFormsApp2
                 byte[] mensaje = System.Text.Encoding.ASCII.GetBytes(SIGNIN1);
 
                 server.Send(mensaje);
-                
+
+                ThreadStart ts = delegate { atenderServidor(); };
+                atender = new Thread(ts);
+                atender.Start();
+
             }
             catch (SocketException)
             {
@@ -286,28 +284,65 @@ namespace WindowsFormsApp2
                 byte[] mensaje = System.Text.Encoding.ASCII.GetBytes(CERRAR);
 
                 server.Send(mensaje);
+
+                atender.Abort();
+
+                server.Shutdown(SocketShutdown.Both);
+                this.BackColor = Color.Gray;
+                lConectados.BackColor = Color.Gray;
+                menuStrip1.BackColor = Color.Gray;
+                label3.Visible = false;
+                label4.Visible = false;
+                label5.Visible = false;
+                NAME.Visible = false;
+                DATE.Visible = false;
+                QUERY1.Visible = false;
+                QUERY2.Visible = false;
+                QUERY3.Visible = false;
+                lConectados.Visible = false;
+                USERNAME.Enabled = true;
+                PASSWORD.Enabled = true;
+                SIGNIN.Enabled = true;
+                LOGIN.Enabled = true;
+                server.Close();
+                MessageBox.Show("DESCONECTADO DEL SERVIDOR");
             }
             catch (SocketException)
             {
                 MessageBox.Show("DESCONECTADO DEL SERVIDOR");
                 return;
             }
-            atender.Abort();
+ 
         }
-        private List<String> dameListaConectados(string lista)
+        private List<String> dameListaConectados(string lista, int nConectados)
         {
             List<String> conectados = new List<String>();
             string [] lconectados = lista.Split('-');
 
             int numeroConectados = Convert.ToInt32(lconectados[1]);
-            int i = 2;
-            while (i < lconectados.Length)
+            int i = 0;
+            while (i < nConectados)
             {
-                string nombre = lconectados[i];
-                conectados.Add(nombre);
+
+                string nombre = lconectados[i+2];
+                string[] Nnombre;
+                Nnombre = nombre.Split('6');
+                conectados.Add(Nnombre[0]);
                 i++;
             }
             return conectados;
+        }
+        private void item_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem item = sender as ToolStripMenuItem;
+            MessageBox.Show("Invitacion enviada a" + item.Text);
+            //cada vez que cliques en una persona del desplegable añada a una persona a un listado de 4 maximo
+
+        }
+
+        private void Invitar_Click(object sender, EventArgs e)
+        {
+            //enciar peticion 6-Nombre-Nombre-Nombre
         }
     }    
 }

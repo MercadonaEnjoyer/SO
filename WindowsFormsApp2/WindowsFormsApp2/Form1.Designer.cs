@@ -45,6 +45,8 @@
             this.DESCONECTAR = new System.Windows.Forms.Button();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.lConectados = new System.Windows.Forms.ToolStripMenuItem();
+            this.Invitar = new System.Windows.Forms.Button();
+            this.Cancelar = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -210,11 +212,32 @@
             this.lConectados.Text = "Conectados";
             this.lConectados.Visible = false;
             // 
+            // Invitar
+            // 
+            this.Invitar.Location = new System.Drawing.Point(136, 9);
+            this.Invitar.Name = "Invitar";
+            this.Invitar.Size = new System.Drawing.Size(86, 22);
+            this.Invitar.TabIndex = 16;
+            this.Invitar.Text = "Invitar";
+            this.Invitar.UseVisualStyleBackColor = true;
+            this.Invitar.Click += new System.EventHandler(this.Invitar_Click);
+            // 
+            // Cancelar
+            // 
+            this.Cancelar.Location = new System.Drawing.Point(228, 9);
+            this.Cancelar.Name = "Cancelar";
+            this.Cancelar.Size = new System.Drawing.Size(86, 22);
+            this.Cancelar.TabIndex = 17;
+            this.Cancelar.Text = "Cancelar";
+            this.Cancelar.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.Cancelar);
+            this.Controls.Add(this.Invitar);
             this.Controls.Add(this.DESCONECTAR);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label4);
@@ -260,6 +283,8 @@
         private System.Windows.Forms.Button DESCONECTAR;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem lConectados;
+        private System.Windows.Forms.Button Invitar;
+        private System.Windows.Forms.Button Cancelar;
     }
 }
 

@@ -90,7 +90,6 @@ int damePos (lConectados * lista, char nombre[20])
 {
 	int i = 0;
 	int encontrado = 0;
-	printf("Litsa nombre : %s\n", lista->conectados[i].nombre);
 	while ((i<lista->num) && !encontrado)
 	{
 		if (strcmp(lista->conectados[i].nombre, nombre) == 0)
@@ -161,17 +160,11 @@ void *atenderCliente (void *socket)
 		int error = 1;
 		int codigo = 9999;
 		char *p;
-		if(strlen(peticion) < 2){
-			error = 0;
-		}
-		if (strcmp(peticion, "") != 0){
-			printf ("Peticion: %s\n",peticion);
-			p = strtok(peticion, "-");
-			codigo = atoi(p);
-		}		
-		if (error == 0){
-			codigo = 9999;
-		}
+		
+		printf ("Peticion: %s\n",peticion);
+		p = strtok(peticion, "-");
+		codigo = atoi(p);
+		
 		if(codigo == 0)
 		{
 			pthread_mutex_lock(&mutex);
@@ -182,9 +175,8 @@ void *atenderCliente (void *socket)
 			strcpy(contrasena, p);
 			printf("Codigo: %d, Nombre: %s y Contraseña: %s\n", codigo, nombre, contrasena);
 			acceso(nombre, contrasena, contestacion);
-			if(strcmp (contestacion, "Error") != 0)
+			if(strcmp (contestacion, "0-Error") != 0)
 				r = conectar(&lista, nombre, socket);
-			dameConectados(&lista, conectados);
 			sprintf(respuesta, "%s", contestacion);
 			write (sock_conn,respuesta,strlen(respuesta));
 			pthread_mutex_unlock(&mutex);
@@ -235,12 +227,11 @@ void *atenderCliente (void *socket)
 			registrar(nombre, contrasena, contestacion);
 			if(strcmp (contestacion, "Error") != 0)
 				r = conectar(&lista, nombre, socket);
-			dameConectados(&lista, conectados);
 			sprintf(respuesta, "%s", contestacion);
 			write (sock_conn,respuesta,strlen(respuesta));
 			pthread_mutex_unlock(&mutex);
 		}
-		else if(codigo == 5)
+		else if (codigo == 5)
 		{
 			pthread_mutex_lock(&mutex);
 			p = strtok(NULL, "-");
@@ -249,25 +240,26 @@ void *atenderCliente (void *socket)
 			printf("Desconectando a %s\n", nombre);
 			r = desconectar(&lista, nombre);
 			printf("Codigo de desconexion: %d\n", r);
-			dameConectados(&lista, conectados);
-			close(sock_conn);
 			pthread_mutex_unlock(&mutex);
 		}
-		else if (codigo == 1 || codigo == 4 || codigo == 5)
+		if (codigo == 0 || codigo == 4 || codigo == 5)
 		{
 			pthread_mutex_lock(&mutex);
 			int j;
 			dameConectados(&lista, conectados);
 			sprintf(respuesta, "6-%s", conectados);
-			printf("%s\n", respuesta);
+			printf("respuesta: %s\n", respuesta);
 			pthread_mutex_unlock(&mutex);
-			for (j = 0; j < lista.num; j++)
+			for (j = 0; j < lista.num+1; j++)
 			{
 				write (sockets[j],respuesta,strlen(respuesta));
 			}
 		}
-		else{
-			printf("Peticion fantasma\n");
+		if(codigo == 5)
+		{
+			pthread_mutex_lock(&mutex);
+			close(sock_conn);
+			pthread_mutex_unlock(&mutex);
 		}
 	}
 }
@@ -321,7 +313,7 @@ void acceso(char nombre[25], char contrasena[25], char respuesta[512])
 	{
 		printf ("Nombre o contraseña incorrectos\n");
 		acceso = -1;
-		sprintf(respuesta, "Error");
+		sprintf(respuesta, "0-Error");
 	}	
 	else
 	{
@@ -381,7 +373,7 @@ void jugadorPartidaMasLarga(char fecha[11], char respuesta[512])
 	if (row == NULL)
 	{
 		printf ("No se han obtenido datos en la consulta\n");
-		sprintf(respuesta, "Error");
+		sprintf(respuesta, "1-Error");
 	}
 	else
 	{
@@ -447,7 +439,7 @@ void jugadorMasPartidas(char fecha[11], char respuesta[512])
 	if (row == NULL)
 	{
 		printf ("No se han obtenido datos en la consulta\n");
-		sprintf(respuesta, "Error");
+		sprintf(respuesta, "2-Error");
 	}
 	else
 	{
@@ -530,7 +522,7 @@ void winratio(char nombre[25], char fecha[11], char respuesta[512])
 	if (row == NULL)
 	{
 		printf ("No se han obtenido datos en la consulta\n");
-		sprintf(respuesta, "Error");
+		sprintf(respuesta, "3-Error");
 	}
 	else
 	{
@@ -587,7 +579,7 @@ void registrar(char nombre[25], char contrasena[25], char respuesta[512])
 		printf ("Error al consultar datos de la base %u %s\n",
 				mysql_errno(conn), mysql_error(conn));
 		exit (1);
-		sprintf(respuesta, "Error");
+		sprintf(respuesta, "4-Error");
 	}
 	else
 	{
