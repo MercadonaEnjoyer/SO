@@ -20,10 +20,28 @@ typedef struct {
 	int num;
 } lConectados;
 
+typedef struct {
+	char jugador[4][20];
+	int socket[4];
+	int ocupado;
+} Partida;
+
+typedef struct {
+	Partida partida [100];
+	int num;
+} lPartidas;
+
+lPartidas listaPartidas;
+
 lConectados lista;
 
 int sockets[100];
 
+int i = 0;
+
+
+void inicializarPartidas (lPartidas *listaPartidas);
+int tPartida (char invitados[60], int numJ, lPartidas *listaPartidas, lConectados *lista);
 void acceso(char nombre[25], char contrasena[25],  char respuesta[512]);
 void jugadorPartidaMasLarga(char fecha[11],  char respuesta[512]);
 void jugadorMasPartidas(char fecha[11], char respuesta[512]);
@@ -42,7 +60,7 @@ int main(int argc, char *argv[])
 	lista.num = 0;
 	int conexion = 0;
 	int puerto = 5060;
-	int i = 0;
+	inicializarPartidas(&listaPartidas);
 	
 	if ((sock_listen = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		printf("Error al crear socket\n");
@@ -76,63 +94,6 @@ int main(int argc, char *argv[])
 
 
 //----------------------------------------------------------------------------------------
-void dameConectados(lConectados *lista, char conectados [300])
-{
-	int i;
-	sprintf (conectados, "%d", lista->num);
-	for (i = 0; i < lista->num; i++)
-	{
-		sprintf(conectados, "%s-%s", conectados, lista->conectados[i].nombre);
-	}
-}
-
-int damePos (lConectados * lista, char nombre[20])
-{
-	int i = 0;
-	int encontrado = 0;
-	while ((i<lista->num) && !encontrado)
-	{
-		if (strcmp(lista->conectados[i].nombre, nombre) == 0)
-			encontrado = 1;
-		if (!encontrado)
-			i++;
-	}
-	if (encontrado)
-		return i;
-	else 
-		return -1;
-}
-
-int desconectar (lConectados *lista, char nombre[20])
-{
-	int pos = damePos(lista, nombre);
-	if (pos == -1)
-		return -1;
-	else
-	{
-		int i;
-		for (i = pos; i < lista->num-1; i++)
-		{
-			lista->conectados[i] = lista->conectados[i+1];
-		}
-		lista->num--;
-		return 0;
-	}
-}
-
-int conectar (lConectados *lista, char nombre[20], int socket)
-{
-	if (lista->num == 100)
-		return -1;
-	else
-	{
-		strcpy(lista->conectados[lista->num].nombre, nombre);
-		lista->conectados[lista->num].socket = socket;
-		lista->num++;
-		printf("Litsa numero : %d\n", lista->num);
-		return 0;
-	}
-}
 
 void *atenderCliente (void *socket)
 {
@@ -150,13 +111,15 @@ void *atenderCliente (void *socket)
 	char conectados[300];
 	int conexion = 0;
 	int r;
-	int i;
+	int n = 0;
+	int z;
 	
 	while(conexion == 0)
 	{
 		ret=read(sock_conn,peticion, sizeof(peticion));
 		printf ("Recibido\n");
 		peticion[ret]='\0';
+		
 		int error = 1;
 		int codigo = 9999;
 		char *p;
@@ -176,7 +139,7 @@ void *atenderCliente (void *socket)
 			printf("Codigo: %d, Nombre: %s y Contraseña: %s\n", codigo, nombre, contrasena);
 			acceso(nombre, contrasena, contestacion);
 			if(strcmp (contestacion, "0-Error") != 0)
-				r = conectar(&lista, nombre, socket);
+				r = conectar(&lista, nombre, sock_conn);
 			sprintf(respuesta, "%s", contestacion);
 			write (sock_conn,respuesta,strlen(respuesta));
 			pthread_mutex_unlock(&mutex);
@@ -205,13 +168,14 @@ void *atenderCliente (void *socket)
 		}
 		else if(codigo == 3)
 		{
+			char pPeticion[20];
 			pthread_mutex_lock(&mutex);
 			p = strtok(NULL, "-");
-			strcpy(nombre, p);
+			strcpy(pPeticion, p);
 			p = strtok(NULL, "-");
 			strcpy(fecha, p);
-			printf("Codigo: %d, Fecha: %s y Nombre: %s\n", codigo, fecha, nombre);
-			winratio(nombre, fecha, contestacion);
+			printf("Codigo: %d, Fecha: %s y Nombre: %s\n", codigo, fecha, pPeticion);
+			winratio(pPeticion, fecha, contestacion);
 			sprintf(respuesta, "%s", contestacion);
 			write (sock_conn,respuesta,strlen(respuesta));
 			pthread_mutex_unlock(&mutex);
@@ -226,7 +190,7 @@ void *atenderCliente (void *socket)
 			printf("Codigo: %d, Fecha: %s y Nombre: %s\n", codigo, contrasena, nombre);
 			registrar(nombre, contrasena, contestacion);
 			if(strcmp (contestacion, "Error") != 0)
-				r = conectar(&lista, nombre, socket);
+				r = conectar(&lista, nombre, sock_conn);
 			sprintf(respuesta, "%s", contestacion);
 			write (sock_conn,respuesta,strlen(respuesta));
 			pthread_mutex_unlock(&mutex);
@@ -240,7 +204,47 @@ void *atenderCliente (void *socket)
 			printf("Desconectando a %s\n", nombre);
 			r = desconectar(&lista, nombre);
 			printf("Codigo de desconexion: %d\n", r);
+			conexion = 1;
 			pthread_mutex_unlock(&mutex);
+		}else if (codigo == 6)
+		{
+			pthread_mutex_lock(&mutex);
+			n = 0;
+			char invitados[60];
+			int numJ;
+			p = strtok(NULL, "-");
+			numJ = atoi(p);
+			p = strtok(NULL, "-");
+			sprintf(invitados, "%s", nombre);
+			while(n < numJ){
+				sprintf(invitados, "%s-%s", invitados, p);
+				p = strtok(NULL, "-");
+				n++;
+			}
+			z = tPartida(invitados, numJ, &listaPartidas, &lista);
+			sprintf(respuesta, "7-%d-%s", z, nombre);
+			printf("Respuesta: %s\n", respuesta);
+			n = 1;
+			while(n < numJ + 1)
+			{
+				printf("Socket: %d\n", listaPartidas.partida[z].socket[n]);
+				write (listaPartidas.partida[z].socket[n], respuesta, strlen(respuesta));
+				n++;
+			}
+			pthread_mutex_unlock(&mutex);
+		} 
+		else if (codigo == 7)
+		{
+			p = strtok(NULL, "-");
+			if (strcmp(p, "ACEPTADO") == 0){
+				sprintf(respuesta, "8-%s-ACEPTADO", nombre);
+				write (listaPartidas.partida[z].socket[0],respuesta,strlen(respuesta));
+				
+			}
+			else{
+				strcpy(respuesta, "8-RECHAZADO");
+				write (listaPartidas.partida[z].socket[0],respuesta,strlen(respuesta));
+			}
 		}
 		if (codigo == 0 || codigo == 4 || codigo == 5)
 		{
@@ -250,20 +254,69 @@ void *atenderCliente (void *socket)
 			sprintf(respuesta, "6-%s", conectados);
 			printf("respuesta: %s\n", respuesta);
 			pthread_mutex_unlock(&mutex);
-			for (j = 0; j < lista.num+1; j++)
+			for (j = 0; j < i; j++)
 			{
 				write (sockets[j],respuesta,strlen(respuesta));
 			}
 		}
-		if(codigo == 5)
-		{
-			pthread_mutex_lock(&mutex);
-			close(sock_conn);
-			pthread_mutex_unlock(&mutex);
-		}
+		printf("Nombre: %s\n", nombre);
+	}
+	close(sock_conn);
+}
+
+//----------------------------------------------------------------------------------------
+
+void inicializarPartidas (lPartidas *listaPartidas)
+{
+	int n;
+	for (n = 0; n < 99; n++)
+	{
+		listaPartidas->partida[n].ocupado = 0;
 	}
 }
 
+//----------------------------------------------------------------------------------------
+
+int tPartida (char invitados[60], int numJ, lPartidas *listaPartidas, lConectados *lista)
+{
+	int n = 0;
+	int j = 0;
+	int num;
+	int encontrado = 0;
+	char *p;
+	p = strtok(invitados, "-");
+	
+	while(n < 99 && encontrado == 0)
+	{
+		if (listaPartidas->partida[n].ocupado == 0)
+		{
+			encontrado = 1;
+		}
+		else{
+			n++;	
+		}
+	}
+	if (encontrado = 1){
+		while(j < numJ + 1)
+		{
+			strcpy(listaPartidas->partida[n].jugador[j], p);
+			int z = damePos(lista, p);
+			printf("%d\n", lista->conectados[z].socket);
+			listaPartidas->partida[n].socket[j] = lista->conectados[z].socket;
+			p = strtok(NULL, "-");
+			j++;
+		}
+		return n;
+	}
+	else{
+		return -1;
+	}
+	
+}
+  
+//----------------------------------------------------------------------------------------			   
+
+//----------------------------------------------------------------------------------------
 
 void acceso(char nombre[25], char contrasena[25], char respuesta[512])
 {
@@ -324,8 +377,71 @@ void acceso(char nombre[25], char contrasena[25], char respuesta[512])
 }
 
 //--------------------------------------------------------------------------------------------------
+void dameConectados(lConectados *lista, char conectados [300])
+{
+	int n;
+	sprintf (conectados, "%d", lista->num);
+	for (n = 0; n < lista->num; n++)
+	{
+		sprintf(conectados, "%s-%s", conectados, lista->conectados[n].nombre);
+	}
+}
 
+//----------------------------------------------------------------------------------------
 
+int damePos (lConectados * lista, char nombre[20])
+{
+	int n = 0;
+	int encontrado = 0;
+	while ((n<lista->num) && !encontrado)
+	{
+		if (strcmp(lista->conectados[n].nombre, nombre) == 0)
+			encontrado = 1;
+		if (!encontrado)
+			n++;
+	}
+	if (encontrado)
+		return n;
+	else 
+		return -1;
+}
+
+//----------------------------------------------------------------------------------------
+
+int desconectar (lConectados *lista, char nombre[20])
+{
+	int pos = damePos(lista, nombre);
+	if (pos == -1)
+		return -1;
+	else
+	{
+		int n;
+		for (n = pos; n < lista->num-1; n++)
+		{
+			lista->conectados[n] = lista->conectados[n+1];
+		}
+		lista->num--;
+		return 0;
+	}
+}
+
+//----------------------------------------------------------------------------------------
+
+int conectar (lConectados *lista, char nombre[20], int socket)
+{
+	if (lista->num == 100)
+		return -1;
+	else
+	{
+		strcpy(lista->conectados[lista->num].nombre, nombre);
+		lista->conectados[lista->num].socket = socket;
+		lista->num++;
+		printf("Litsa numero : %d\n", lista->num);
+		return 0;
+	}
+}
+
+//----------------------------------------------------------------------------------------
 
 void jugadorPartidaMasLarga(char fecha[11], char respuesta[512])
 {
