@@ -202,6 +202,7 @@
             this.menuStrip1.Size = new System.Drawing.Size(800, 34);
             this.menuStrip1.TabIndex = 15;
             this.menuStrip1.Text = "menuStrip1";
+            this.menuStrip1.Visible = false;
             // 
             // lConectados
             // 
@@ -228,6 +229,7 @@
             this.Invitar.TabIndex = 16;
             this.Invitar.Text = "Invitar";
             this.Invitar.UseVisualStyleBackColor = true;
+            this.Invitar.Visible = false;
             this.Invitar.Click += new System.EventHandler(this.Invitar_Click);
             // 
             // Cancelar
@@ -238,6 +240,7 @@
             this.Cancelar.TabIndex = 17;
             this.Cancelar.Text = "Cancelar";
             this.Cancelar.UseVisualStyleBackColor = true;
+            this.Cancelar.Visible = false;
             // 
             // Form1
             // 

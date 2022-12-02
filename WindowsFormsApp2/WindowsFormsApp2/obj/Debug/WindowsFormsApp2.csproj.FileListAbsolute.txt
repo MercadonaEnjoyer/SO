@@ -50,3 +50,4 @@ C:\Users\Aran\Desktop\SO-1\SO-4.1\WindowsFormsApp2\WindowsFormsApp2\obj\Debug\Wi
 C:\Users\Aran\Desktop\SO-1\SO-4.1\WindowsFormsApp2\WindowsFormsApp2\obj\Debug\WindowsFormsApp2.csproj.CoreCompileInputs.cache
 C:\Users\Aran\Desktop\SO-1\SO-4.1\WindowsFormsApp2\WindowsFormsApp2\obj\Debug\WindowsFormsApp2.exe
 C:\Users\Aran\Desktop\SO-1\SO-4.1\WindowsFormsApp2\WindowsFormsApp2\obj\Debug\WindowsFormsApp2.pdb
+C:\Users\Aran\Desktop\UNI\SO\WindowsFormsApp2\WindowsFormsApp2\obj\Debug\WindowsFormsApp2.Form2.resources
