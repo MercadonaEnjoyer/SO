@@ -20,6 +20,7 @@ namespace WindowsFormsApp2
         public Label l5;
         public Label l6;
         public Label l7;
+        public Label l8;
         public TextBox tB;
 
         public Form2()
@@ -33,6 +34,7 @@ namespace WindowsFormsApp2
             l5 = label2;
             l6 = label3;
             l7 = label4;
+            l8 = label5;
             tB = textBox1;
         }
         private void Form2_Load(object sender, EventArgs e)

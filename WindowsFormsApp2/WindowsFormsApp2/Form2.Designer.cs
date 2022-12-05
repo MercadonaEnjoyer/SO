@@ -86,9 +86,9 @@
             this.label5.ForeColor = System.Drawing.Color.Green;
             this.label5.Location = new System.Drawing.Point(112, 86);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(46, 31);
+            this.label5.Size = new System.Drawing.Size(43, 31);
             this.label5.TabIndex = 5;
-            this.label5.Text = "Tu";
+            this.label5.Text = "J1";
             // 
             // label6
             // 
@@ -99,7 +99,7 @@
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(43, 31);
             this.label6.TabIndex = 6;
-            this.label6.Text = "J1";
+            this.label6.Text = "J2";
             // 
             // label8
             // 
@@ -110,7 +110,7 @@
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(43, 31);
             this.label8.TabIndex = 7;
-            this.label8.Text = "J2";
+            this.label8.Text = "J3";
             // 
             // label7
             // 
@@ -121,7 +121,7 @@
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(43, 31);
             this.label7.TabIndex = 8;
-            this.label7.Text = "J3";
+            this.label7.Text = "J4";
             // 
             // button1
             // 
