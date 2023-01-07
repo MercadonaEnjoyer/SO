@@ -21,6 +21,7 @@ namespace WindowsFormsApp2
         int nInvitados = 0;
         public static Form1 instance;
         Form2 form = new Form2();
+        bool anfitrion;
         int partida;
         public Form1()
         {
@@ -35,6 +36,7 @@ namespace WindowsFormsApp2
         }
         private void atenderServidor()
         {
+            int nAceptada = 0;
             string[] jugadores = new string[3];
             while (true)
             {
@@ -42,7 +44,7 @@ namespace WindowsFormsApp2
                 byte[] msg2 = new byte[80];
                 server.Receive(msg2);
                 string mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-                string [] trozos = mensaje.Split('-');
+                string [] trozos = Encoding.ASCII.GetString(msg2).Split('-');
                 int codigo = Convert.ToInt32(trozos[0]);
                 switch (codigo)
                 {
@@ -191,21 +193,77 @@ namespace WindowsFormsApp2
                         break;
                     case 8:
                         partida = Convert.ToInt32(trozos[1]);
-                        Form2.instance.l8.Text = trozos[2];
+                        if (trozos[2] == "Yes")
+                        {
+                            i = 0;
+                            string peticion;
+                            jugadores[nAceptada] = trozos[3];
+                            switch (nAceptada)
+                            {
+                                case 0:
+                                    Form2.instance.l1.Text = jugadores[nAceptada];
+                                    Form2.instance.l1.ForeColor = Color.Green;
+                                    nAceptada++;
+                                    break;
+                                case 1:
+                                    Form2.instance.l2.Text = jugadores[nAceptada];
+                                    Form2.instance.l2.ForeColor = Color.Green;
+                                    nAceptada++;
+                                    break;
+                                case 2:
+                                    Form2.instance.l3.Text = jugadores[nAceptada];
+                                    Form2.instance.l3.ForeColor = Color.Green;
+                                    break;
+                            }
+                            string peticion2 = "-" + USERNAME.Text;
+                            while (jugadores[i] != null)
+                            {
+                                peticion2 = peticion2 + "-" + jugadores[i];
+                                i++;
+                            }
+                            peticion = "9-" + i;
+                            peticion = peticion + peticion2;
+                            byte[] enviar = System.Text.Encoding.ASCII.GetBytes(peticion);
+                            server.Send(enviar);
+                        }
+                        break;
+                    case 9:
+                        Form2.instance.l7.Text = Form2.instance.l6.Text;
+                        Form2.instance.l6.Text = Form2.instance.l5.Text;
+                        Form2.instance.l5.Text = Form2.instance.l4.Text;
+                        Form2.instance.l4.Text = trozos[1];
+                        break;
+                    case 10:
+                        i = 1;
+                        Form2.instance.l1.Text = trozos[i];
+                        Form2.instance.l1.ForeColor = Color.Green;
+                        i++;
+                        if (trozos.Length > 2)
+                        { 
+                            if (trozos[i] != null && trozos[i] != USERNAME.Text)
+                            {
+                                
+                                Form2.instance.l2.Text = trozos[i];
+                                Form2.instance.l2.ForeColor = Color.Green;
+                                i++;
+                                
+                            }
+                            else if (trozos.Length > 3)
+                            {
+                                i++;
+                                Form2.instance.l2.Text = trozos[i];
+                                Form2.instance.l2.ForeColor = Color.Green;
+                                i++;
+                            }
+                        }
                         if (trozos.Length > 3)
                         {
-                            Form2.instance.l1.Text = trozos[3];
-                            Form2.instance.l1.ForeColor = Color.Green;
-                            if (trozos.Length > 4)
+                            if (trozos[i] != null && trozos[i] != USERNAME.Text)
                             {
-                                Form2.instance.l2.Text = trozos[4];
-                                Form2.instance.l2.ForeColor = Color.Green;
-                                if (trozos.Length > 5)
-                                {
-                                    Form2.instance.l3.Text = trozos[5];
-                                    Form2.instance.l3.ForeColor = Color.Green;
-                                }
+                                Form2.instance.l3.Text = trozos[i];
+                                Form2.instance.l3.ForeColor = Color.Green;
                             }
+                            break;
                         }
                         break;
                 }
@@ -386,7 +444,10 @@ namespace WindowsFormsApp2
         }
         private void listaInvitacion (string nombre)
         {
-            if (nInvitados < 4)
+            label6.Visible = true;
+            Invitar.Enabled = true;
+            Cancelar.Enabled = true;
+            if (nInvitados < 3)
             {
                 invitados = invitados + "-" + nombre;
                 nInvitados++;
@@ -395,13 +456,33 @@ namespace WindowsFormsApp2
             {
                 MessageBox.Show("Solo se puede invitar un maximo de 4 jugadores");
             }
+            switch (nInvitados)
+            {
+                case 1:
+                    label7.Text = nombre;
+                    label7.Visible = true;
+                    break;
+                case 2:
+                    label8.Text = nombre;
+                    label8.Visible = true;
+                    break;
+                case 3:
+                    label9.Text = nombre;
+                    label9.Visible = true;
+                    break;
+            }
         }
         private void Invitar_Click(object sender, EventArgs e)
         {
-            string invite = "6-" + nInvitados + invitados;
-            byte[] mensaje = System.Text.Encoding.ASCII.GetBytes(invite);
-            server.Send(mensaje);
-            form.Show();
+            anfitrion = true;
+            label6.Visible = true;
+            if(invitados != null)
+            {
+                string invite = "6-" + nInvitados + invitados;
+                byte[] mensaje = System.Text.Encoding.ASCII.GetBytes(invite);
+                server.Send(mensaje);
+                form.Show();
+            }
         }
         public void enviarMensaje()
         {
@@ -409,6 +490,20 @@ namespace WindowsFormsApp2
             byte[] enviar = System.Text.Encoding.ASCII.GetBytes(peticion);
             server.Send(enviar);
         }
-        
+
+        private void Cancelar_Click(object sender, EventArgs e)
+        {
+            label6.Visible = false;
+            Invitar.Enabled = false;
+            Cancelar.Enabled = false;
+            nInvitados = 0;
+            label7.Text = "";
+            label7.Visible = false;
+            label8.Text = "";
+            label7.Visible = false;
+            label9.Text = "";
+            label9.Visible = false;
+            invitados = null;
+        }
     }    
 }
