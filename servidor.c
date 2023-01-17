@@ -23,6 +23,7 @@ typedef struct {
 typedef struct {
 	char jugador[4][20];
 	int socket[4];
+	int aceptado[4];
 	int ocupado;
 } Partida;
 
@@ -70,7 +71,7 @@ int main(int argc, char *argv[])
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY); 
 	serv_adr.sin_port = htons(puerto);
 	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
-		printf ("Error al bind");
+		printf ("Error al bind\n");
 	
 	if (listen(sock_listen, 3) < 0)
 		printf("Error en el Listen");
@@ -236,6 +237,8 @@ void *atenderCliente (void *socket)
 		}
 		else if(codigo == 7)
 		{
+			char jugadores[80]; 
+			int j = 0;
 			pthread_mutex_lock(&mutex);
 			p = strtok(NULL,"-");
 			partida = atoi(p);
@@ -243,12 +246,30 @@ void *atenderCliente (void *socket)
 			n = 0;
 			if (strcmp(p, "Yes") == 0)
 			{
-				sprintf(respuesta, "8-%d-%s-%s",partida, p, nombre);
-				write (listaPartidas.partida[partida].socket[0], respuesta, strlen(respuesta));
-			}
-			else
-			{
-				quitarJugador(nombre, partida, &listaPartidas);
+				while(strcmp(listaPartidas.partida[partida].jugador[n], nombre) != 0)
+				{
+					n++;
+				}
+				listaPartidas.partida[partida].aceptado[n] = 1;
+				sprintf(jugadores, "-%s", listaPartidas.partida[partida].jugador[0]);
+				n = 1;
+				while(n < 4)
+				{
+					if(listaPartidas.partida[partida].aceptado[n] == 1){
+						sprintf(jugadores, "%s-%s",jugadores, listaPartidas.partida[partida].jugador[n]);
+					}
+					n++;
+				}
+				n = 0;
+				while(n < 4)
+				{
+					if(listaPartidas.partida[partida].aceptado[n] == 1){
+						sprintf(respuesta, "8-%d%s", n, jugadores);
+						j++;
+						write (listaPartidas.partida[partida].socket[n], respuesta, strlen(respuesta));
+					}
+					n++;
+				}
 			}
 			pthread_mutex_unlock(&mutex);
 		}
@@ -256,12 +277,12 @@ void *atenderCliente (void *socket)
 		{
 			pthread_mutex_lock(&mutex);
 			n = 0;
-			p = strtok(NULL, "-");
-			p = strtok(NULL, "-");			
-			sprintf(respuesta, "9-%s", p);
-			while (n < sizeof(listaPartidas.partida[partida].socket && strcmp(listaPartidas.partida[partida].jugador[n], listaPartidas.partida[partida].jugador[n-1]) != 0))
+			sprintf(respuesta, "10-");
+			while (n < 4)
 			{
-				write (listaPartidas.partida[partida].socket[n], respuesta, strlen(respuesta));
+				if(listaPartidas.partida[partida].aceptado[n] == 1){
+					write (listaPartidas.partida[partida].socket[n], respuesta, strlen(respuesta));
+				}
 				n++;
 			}
 			pthread_mutex_unlock(&mutex);
@@ -269,22 +290,34 @@ void *atenderCliente (void *socket)
 		else if(codigo == 9)
 		{
 			pthread_mutex_lock(&mutex);
-			p = strtok(NULL, "-");
-			int m = atoi(p);
-			p = strtok(NULL, "-");
-			strcpy(respuesta, "10");
+			p = strtok(NULL,"-");
+			int vely = atoi(p);
+			sprintf(respuesta, "11-%d", vely);
 			n = 0;
-			while (n < m)
+			while (n < 4)
 			{
-				sprintf(respuesta, "%s-%s", respuesta, p);
-				p = strtok(NULL, "-");
+				if(listaPartidas.partida[partida].aceptado[n] == 1){
+					write (listaPartidas.partida[partida].socket[n], respuesta, strlen(respuesta));
+				}
 				n++;
 			}
-			n = 1;
-			printf("%s\n", respuesta);
-			while (n < sizeof(listaPartidas.partida[partida].socket && strcmp(listaPartidas.partida[partida].jugador[n], listaPartidas.partida[partida].jugador[n-1]) != 0))
+			pthread_mutex_unlock(&mutex);
+		}
+		else if(codigo == 10)
+		{
+			pthread_mutex_lock(&mutex);
+			p = strtok(NULL,"-");
+			char mov [2];
+			strcpy(mov, p);
+			p = strtok(NULL,"-");
+			int Jn = atoi(p);
+			sprintf(respuesta, "12-%s-%d", mov, Jn);
+			n = 0;
+			while (n < 4)
 			{
-				write (listaPartidas.partida[partida].socket[n], respuesta, strlen(respuesta));
+				if(listaPartidas.partida[partida].aceptado[n] == 1){
+					write (listaPartidas.partida[partida].socket[n], respuesta, strlen(respuesta));
+				}
 				n++;
 			}
 			pthread_mutex_unlock(&mutex);
@@ -301,25 +334,11 @@ void *atenderCliente (void *socket)
 			{
 				write (sockets[j],respuesta,strlen(respuesta));
 			}
+			pthread_mutex_unlock(&mutex);
 		}
 		printf("Nombre: %s\n", nombre);
 	}
 	close(sock_conn);
-}
-//----------------------------------------------------------------------------------------
-
-void quitarJugador (int jugador, int nPartida, lPartidas *listaPartidas)
-{
-	int n = 0;
-	while (strcmp(jugador, listaPartidas->partida[nPartida].jugador[n]) != 0)
-	{
-		n++;
-	}
-	while(n < 3)
-	{
-		strcpy(listaPartidas->partida[nPartida].jugador[n], listaPartidas->partida[nPartida].jugador[n+1]);
-		n++;
-	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -343,7 +362,6 @@ int tPartida (char invitados[60], int numJ, lPartidas *listaPartidas, lConectado
 	int encontrado = 0;
 	char *p;
 	p = strtok(invitados, "-");
-	
 	while(n < 99 && encontrado == 0)
 	{
 		if (listaPartidas->partida[n].ocupado == 0)
@@ -355,6 +373,7 @@ int tPartida (char invitados[60], int numJ, lPartidas *listaPartidas, lConectado
 		}
 	}
 	if (encontrado = 1){
+		listaPartidas->partida[n].aceptado[0] = 1;
 		while(j < numJ + 1)
 		{
 			strcpy(listaPartidas->partida[n].jugador[j], p);

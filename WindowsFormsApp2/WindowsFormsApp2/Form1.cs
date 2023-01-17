@@ -21,8 +21,8 @@ namespace WindowsFormsApp2
         int nInvitados = 0;
         public static Form1 instance;
         Form2 form = new Form2();
-        bool anfitrion;
         int partida;
+        public int J;
         public Form1()
         {
             InitializeComponent();
@@ -32,11 +32,10 @@ namespace WindowsFormsApp2
         private void Form1_Load(object sender, EventArgs e)
         {
 
-            
+
         }
         private void atenderServidor()
         {
-            int nAceptada = 0;
             string[] jugadores = new string[3];
             while (true)
             {
@@ -44,7 +43,7 @@ namespace WindowsFormsApp2
                 byte[] msg2 = new byte[80];
                 server.Receive(msg2);
                 string mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-                string [] trozos = Encoding.ASCII.GetString(msg2).Split('-');
+                string[] trozos = Encoding.ASCII.GetString(msg2).Split('-');
                 int codigo = Convert.ToInt32(trozos[0]);
                 switch (codigo)
                 {
@@ -178,10 +177,6 @@ namespace WindowsFormsApp2
                                 peticion = "7-" + partida + "-Yes";
                                 byte[] enviar = System.Text.Encoding.ASCII.GetBytes(peticion);
                                 server.Send(enviar);
-                                Invoke(new Action(() =>
-                                {
-                                    form.Show();
-                                }));
                             }
                             else
                             {
@@ -192,39 +187,27 @@ namespace WindowsFormsApp2
                         }
                         break;
                     case 8:
-                        partida = Convert.ToInt32(trozos[1]);
-                        if (trozos[2] == "Yes")
+                        J = Convert.ToInt32(trozos[1]);
+                        Invoke(new Action(() =>
                         {
-                            i = 0;
-                            string peticion;
-                            jugadores[nAceptada] = trozos[3];
-                            switch (nAceptada)
-                            {
-                                case 0:
-                                    Form2.instance.l1.Text = jugadores[nAceptada];
-                                    Form2.instance.l1.ForeColor = Color.Green;
-                                    nAceptada++;
-                                    break;
-                                case 1:
-                                    Form2.instance.l2.Text = jugadores[nAceptada];
-                                    Form2.instance.l2.ForeColor = Color.Green;
-                                    nAceptada++;
-                                    break;
-                                case 2:
-                                    Form2.instance.l3.Text = jugadores[nAceptada];
-                                    Form2.instance.l3.ForeColor = Color.Green;
-                                    break;
-                            }
-                            string peticion2 = "-" + USERNAME.Text;
-                            while (jugadores[i] != null)
-                            {
-                                peticion2 = peticion2 + "-" + jugadores[i];
-                                i++;
-                            }
-                            peticion = "9-" + i;
-                            peticion = peticion + peticion2;
-                            byte[] enviar = System.Text.Encoding.ASCII.GetBytes(peticion);
-                            server.Send(enviar);
+                            form.Show();
+                        }));
+                        Form2.instance.l1.Text = trozos[2];
+                        Form2.instance.l1.ForeColor = Color.Green;
+                        if (trozos.Length > 3)
+                        {
+                            Form2.instance.l2.Text = trozos[3];
+                            Form2.instance.l2.ForeColor = Color.Green;
+                        }
+                        if (trozos.Length > 4)
+                        {
+                            Form2.instance.l3.Text = trozos[4];
+                            Form2.instance.l3.ForeColor = Color.Green;
+                        }
+                        if (trozos.Length > 5)
+                        {
+                            Form2.instance.l4.Text = trozos[5];
+                            Form2.instance.l4.ForeColor = Color.Green;
                         }
                         break;
                     case 9:
@@ -234,36 +217,67 @@ namespace WindowsFormsApp2
                         Form2.instance.l4.Text = trozos[1];
                         break;
                     case 10:
-                        i = 1;
-                        Form2.instance.l1.Text = trozos[i];
-                        Form2.instance.l1.ForeColor = Color.Green;
-                        i++;
-                        if (trozos.Length > 2)
-                        { 
-                            if (trozos[i] != null && trozos[i] != USERNAME.Text)
-                            {
-                                
-                                Form2.instance.l2.Text = trozos[i];
-                                Form2.instance.l2.ForeColor = Color.Green;
-                                i++;
-                                
-                            }
-                            else if (trozos.Length > 3)
-                            {
-                                i++;
-                                Form2.instance.l2.Text = trozos[i];
-                                Form2.instance.l2.ForeColor = Color.Green;
-                                i++;
-                            }
-                        }
-                        if (trozos.Length > 3)
+                        Invoke(new Action(() =>
                         {
-                            if (trozos[i] != null && trozos[i] != USERNAME.Text)
-                            {
-                                Form2.instance.l3.Text = trozos[i];
-                                Form2.instance.l3.ForeColor = Color.Green;
-                            }
-                            break;
+                            Form2.instance.startAction();
+                        }));
+                        break;
+                    case 11:
+                        Form2.instance.vely = Convert.ToInt32(trozos[1]) - 7;
+                        break;
+                    case 12:
+                        int nJ = Convert.ToInt32(trozos[2]);
+                        Point p;
+                        switch (nJ)
+                        {
+                            case 0:
+                                if (trozos[1] == "w")
+                                {
+                                    p = Form2.instance.nJ1.Location;
+                                    Form2.instance.nJ1.Location = new Point(p.X, p.Y - 4);
+                                }
+                                else
+                                {
+                                    p = Form2.instance.nJ1.Location;
+                                    Form2.instance.nJ1.Location = new Point(p.X, p.Y + 4);
+                                }
+                                break;
+                            case 1:
+                                if(trozos[1] == "w")
+                                {
+                                    p = Form2.instance.nJ2.Location;
+                                    Form2.instance.nJ2.Location = new Point(p.X, p.Y - 4);
+                                }
+                                else
+                                {
+                                    p = Form2.instance.nJ2.Location;
+                                    Form2.instance.nJ2.Location = new Point(p.X, p.Y + 4);
+                                }
+                                break;
+                            case 2:
+                                if (trozos[1] == "w")
+                                {
+                                    p = Form2.instance.nJ3.Location;
+                                    Form2.instance.nJ3.Location = new Point(p.X, p.Y - 4);
+                                }
+                                else
+                                {
+                                    p = Form2.instance.nJ3.Location;
+                                    Form2.instance.nJ3.Location = new Point(p.X, p.Y + 4);
+                                }
+                                break;
+                            case 3:
+                                if (trozos[1] == "w")
+                                {
+                                    p = Form2.instance.nJ4.Location;
+                                    Form2.instance.nJ4.Location = new Point(p.X, p.Y - 4);
+                                }
+                                else
+                                {
+                                    p = Form2.instance.nJ4.Location;
+                                    Form2.instance.nJ4.Location = new Point(p.X, p.Y + 4);
+                                }
+                                break;
                         }
                         break;
                 }
@@ -474,14 +488,12 @@ namespace WindowsFormsApp2
         }
         private void Invitar_Click(object sender, EventArgs e)
         {
-            anfitrion = true;
             label6.Visible = true;
             if(invitados != null)
             {
                 string invite = "6-" + nInvitados + invitados;
                 byte[] mensaje = System.Text.Encoding.ASCII.GetBytes(invite);
                 server.Send(mensaje);
-                form.Show();
             }
         }
         public void enviarMensaje()
@@ -504,6 +516,24 @@ namespace WindowsFormsApp2
             label9.Text = "";
             label9.Visible = false;
             invitados = null;
+        }
+        public void START()
+        {
+            string peticion = "8-";
+            byte[] enviar = System.Text.Encoding.ASCII.GetBytes(peticion);
+            server.Send(enviar);
+        }
+        public void golpePelota()
+        {
+            string peticion = "9-" + Convert.ToString(Form2.instance.nVely);
+            byte[] enviar = System.Text.Encoding.ASCII.GetBytes(peticion);
+            server.Send(enviar);
+        }
+        public void movimiento(string direccion, int jugador)
+        {
+            string peticion = "10-" + direccion + "-" + Convert.ToString(jugador);
+            byte[] enviar = System.Text.Encoding.ASCII.GetBytes(peticion);
+            server.Send(enviar);
         }
     }    
 }

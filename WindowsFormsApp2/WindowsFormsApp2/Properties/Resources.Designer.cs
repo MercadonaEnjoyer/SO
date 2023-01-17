@@ -73,6 +73,16 @@ namespace WindowsFormsApp2.Properties {
         /// <summary>
         ///   Busca un recurso adaptado de tipo System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap jugador {
+            get {
+                object obj = ResourceManager.GetObject("jugador", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Busca un recurso adaptado de tipo System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap png_clipart_tennis_balls_green_tennis_glass_white {
             get {
                 object obj = ResourceManager.GetObject("png-clipart-tennis-balls-green-tennis-glass-white", resourceCulture);
