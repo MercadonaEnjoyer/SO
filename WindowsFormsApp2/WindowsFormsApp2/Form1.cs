@@ -23,6 +23,7 @@ namespace WindowsFormsApp2
         Form2 form = new Form2();
         int partida;
         public int J;
+        bool atendiendo = false;
         public Form1()
         {
             InitializeComponent();
@@ -32,9 +33,8 @@ namespace WindowsFormsApp2
         private void Form1_Load(object sender, EventArgs e)
         {
 
-
         }
-        private void atenderServidor()
+        private void atenderServidor()      //atiende las respuestas del servidor
         {
             string[] jugadores = new string[3];
             while (true)
@@ -42,18 +42,29 @@ namespace WindowsFormsApp2
                 int i;
                 byte[] msg2 = new byte[80];
                 server.Receive(msg2);
-                string mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-                string[] trozos = Encoding.ASCII.GetString(msg2).Split('-');
-                int codigo = Convert.ToInt32(trozos[0]);
-                switch (codigo)
+                string mensaje;
+                string[] trozos;
+                int codigo = 13;
+                try
+                {
+                    mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
+                    trozos = Encoding.ASCII.GetString(msg2).Split('-');
+                    codigo = Convert.ToInt32(trozos[0]);
+                }
+                catch
+                {
+                    mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
+                    trozos = Encoding.ASCII.GetString(msg2).Split('-');
+                }
+                switch (codigo)     //dependiendo del codigo hace la accion pedida por el servidor 
                 {
                     case 0:
-                        if (mensaje == "0-0")
+                        if (mensaje == "0-0")       //el usuario se conecta y se ha logeado satisfactoriamente o le informa de que ha introducido mal el nombre o contraseña
                         {
                             Invoke(new Action(() =>
                             {
-                                this.BackColor = Color.Green;
-                                menuStrip1.BackColor = Color.Green;
+                                DESCONECTAR.Enabled = true;
+                                menuStrip1.BackColor = Color.Transparent;
                                 label3.Visible = true;
                                 label4.Visible = true;
                                 label5.Visible = true;
@@ -66,6 +77,7 @@ namespace WindowsFormsApp2
                                 lConectados.Visible = true;
                                 Invitar.Visible = true;
                                 Cancelar.Visible = true;
+                                eliminarBtn.Visible = true;
                                 USERNAME.Enabled = false;
                                 PASSWORD.Enabled = false;
                                 SIGNIN.Enabled = false;
@@ -78,7 +90,7 @@ namespace WindowsFormsApp2
                         }
                         break;
                     case 1:
-                        if (mensaje != "1-Error")
+                        if (mensaje != "1-Error")       //respuesta del servidor de cual es el jugador con mas partidas
                         {
                             i = 1;
                             string jugadoresP = "Los jugadores que jugaron la partida mas larga son : " + mensaje.Split('-')[i];
@@ -97,7 +109,7 @@ namespace WindowsFormsApp2
                         break;
                     case 2:
 
-                        if (mensaje != "2-Error")
+                        if (mensaje != "2-Error")       //respuesta del servidor de cual fue el jugador con mas partidas
                         {
                             string mensaje2 = mensaje.Split('-')[1];
                             MessageBox.Show("El jugador " + mensaje2 + " fue el jugador con mas partidas el dia " + DATE.Text);
@@ -108,10 +120,10 @@ namespace WindowsFormsApp2
                         }
                         break;
                     case 3:
-                        if (mensaje != "3-Error")
+                        if (mensaje != "3-Error")       // respuesta del servidor a cual es el winratio del jugador
                         {
                             double Wins = Convert.ToDouble(mensaje.Split('-')[1]);
-                            double Played = Convert.ToDouble(mensaje.Split('-')[2]);
+                            double Played = Convert.ToDouble(mensaje.Split('-')[2]);        
                             double wr;
                             wr = (Wins / Played) * 100;
                             MessageBox.Show("El jugador " + NAME.Text + " tuvo un winratio de " + wr + "% el dia " + DATE.Text);
@@ -122,14 +134,13 @@ namespace WindowsFormsApp2
                         }
                         break;
                     case 4:
-                        if (mensaje == "4-0")
+                        if (mensaje == "4-0")       //informa de si el cliente se ha registrado correctamente y le permite el acceso
                         {
                             Invoke(new Action(() =>
                             {
                                 MessageBox.Show("Registrado correctamente, has accedido a la cuenta");
-                                this.BackColor = Color.Green;
-                                lConectados.BackColor = Color.Green;
-                                menuStrip1.BackColor = Color.Green;
+                                DESCONECTAR.Enabled = true;
+                                menuStrip1.BackColor = Color.Transparent;
                                 label3.Visible = true;
                                 label4.Visible = true;
                                 label5.Visible = true;
@@ -138,7 +149,11 @@ namespace WindowsFormsApp2
                                 QUERY1.Visible = true;
                                 QUERY2.Visible = true;
                                 QUERY3.Visible = true;
+                                menuStrip1.Visible = true;
                                 lConectados.Visible = true;
+                                Invitar.Visible = true;
+                                Cancelar.Visible = true;
+                                eliminarBtn.Visible = true;
                                 USERNAME.Enabled = false;
                                 PASSWORD.Enabled = false;
                                 SIGNIN.Enabled = false;
@@ -153,7 +168,7 @@ namespace WindowsFormsApp2
                     case 5:
                         break;
                     case 6:
-                        int id = 0;
+                        int id = 0;     //añade a la lista de jugadores conectados el listado que le entrega el servidor 
                         int nConectados = Convert.ToInt32(trozos[1]);
                         lConectados.DropDownItems.Clear();
                         foreach (String items in dameListaConectados(mensaje, nConectados))
@@ -166,7 +181,7 @@ namespace WindowsFormsApp2
                         }
                         break;
                     case 7:
-                        if (mensaje != "7-ERROR")
+                        if (mensaje != "7-ERROR")       //avisa al cliente de que ha sido invitado a jugar y le da la opcion de aceptar o rechazar
                         {
                             string peticion;
                             Convert.ToString(mensaje);
@@ -187,7 +202,7 @@ namespace WindowsFormsApp2
                         }
                         break;
                     case 8:
-                        J = Convert.ToInt32(trozos[1]);
+                        J = Convert.ToInt32(trozos[1]);     //cuando la gente se va uniendo a la partida va añadiendo su nombre a los jugadores y los pone en verde
                         Invoke(new Action(() =>
                         {
                             form.Show();
@@ -196,13 +211,13 @@ namespace WindowsFormsApp2
                         Form2.instance.l1.ForeColor = Color.Green;
                         if (trozos.Length > 3)
                         {
-                            Form2.instance.l2.Text = trozos[3];
-                            Form2.instance.l2.ForeColor = Color.Green;
+                            Form2.instance.l3.Text = trozos[3];
+                            Form2.instance.l3.ForeColor = Color.Green;
                         }
                         if (trozos.Length > 4)
                         {
-                            Form2.instance.l3.Text = trozos[4];
-                            Form2.instance.l3.ForeColor = Color.Green;
+                            Form2.instance.l2.Text = trozos[4];
+                            Form2.instance.l2.ForeColor = Color.Green;
                         }
                         if (trozos.Length > 5)
                         {
@@ -211,19 +226,19 @@ namespace WindowsFormsApp2
                         }
                         break;
                     case 9:
+                        Form2.instance.l8.Text = Form2.instance.l7.Text;        //actualiza los mensajes enviados 
                         Form2.instance.l7.Text = Form2.instance.l6.Text;
                         Form2.instance.l6.Text = Form2.instance.l5.Text;
-                        Form2.instance.l5.Text = Form2.instance.l4.Text;
-                        Form2.instance.l4.Text = trozos[1];
+                        Form2.instance.l5.Text = trozos[1];
                         break;
                     case 10:
                         Invoke(new Action(() =>
                         {
-                            Form2.instance.startAction();
+                            Form2.instance.startAction();       //inicia la partida
                         }));
                         break;
                     case 11:
-                        Form2.instance.vely = Convert.ToInt32(trozos[1]) - 7;
+                        Form2.instance.vely = Convert.ToInt32(trozos[1]) - 7;       //cambia la direccion de la velocidad vertical de la pelota
                         break;
                     case 12:
                         int nJ = Convert.ToInt32(trozos[2]);
@@ -231,7 +246,7 @@ namespace WindowsFormsApp2
                         switch (nJ)
                         {
                             case 0:
-                                if (trozos[1] == "w")
+                                if (trozos[1] == "w")       //mueve a los personajes
                                 {
                                     p = Form2.instance.nJ1.Location;
                                     Form2.instance.nJ1.Location = new Point(p.X, p.Y - 4);
@@ -280,10 +295,12 @@ namespace WindowsFormsApp2
                                 break;
                         }
                         break;
+                    case 13:
+                        break;
                 }
             }
         }
-        private void LOGIN_Click(object sender, EventArgs e)
+        private void LOGIN_Click(object sender, EventArgs e)        //envia la peticion de login con la informacion necesaria
         {
             IPAddress direc = IPAddress.Parse("192.168.56.102");
             IPEndPoint ipep = new IPEndPoint(direc, 5060);
@@ -292,16 +309,25 @@ namespace WindowsFormsApp2
             try
             {
                 server.Connect(ipep);
-                
 
-                string login = "0" + "-" + USERNAME.Text + "-" + PASSWORD.Text;
-                byte[] mensaje = System.Text.Encoding.ASCII.GetBytes(login);
 
-                server.Send(mensaje);
+                if (USERNAME.Text != "" && PASSWORD.Text != "")
+                {
+                    string login = "0" + "-" + USERNAME.Text + "-" + PASSWORD.Text;
+                    byte[] mensaje = System.Text.Encoding.ASCII.GetBytes(login);
 
-                ThreadStart ts = delegate { atenderServidor(); };
-                atender = new Thread(ts);
-                atender.Start();
+                    server.Send(mensaje);
+
+                    if (!atendiendo)
+                    {
+                        ThreadStart ts = delegate { atenderServidor(); };
+                        atender = new Thread(ts);
+                        atender.Start();
+                        atendiendo = true;
+                    }
+                }
+                else
+                    MessageBox.Show("Introduzca su nombre y contraseña");
             }
             catch (SocketException)
             {
@@ -310,7 +336,7 @@ namespace WindowsFormsApp2
             }
         }
 
-        private void SIGNIN_Click(object sender, EventArgs e)
+        private void SIGNIN_Click(object sender, EventArgs e)       //envia la peticion de añadir un nuevo cliente junto con la informacion necesaria 
         {
 
             IPAddress direc = IPAddress.Parse("192.168.56.102");
@@ -320,16 +346,19 @@ namespace WindowsFormsApp2
             try
             {
                 server.Connect(ipep);
-                this.BackColor = Color.Green;
 
                 string SIGNIN1 = "4" + "-" + USERNAME.Text + "-" + PASSWORD.Text;
                 byte[] mensaje = System.Text.Encoding.ASCII.GetBytes(SIGNIN1);
 
                 server.Send(mensaje);
 
-                ThreadStart ts = delegate { atenderServidor(); };
-                atender = new Thread(ts);
-                atender.Start();
+                if (!atendiendo)
+                {
+                    ThreadStart ts = delegate { atenderServidor(); };
+                    atender = new Thread(ts);
+                    atender.Start();
+                    atendiendo = true;
+                }
 
             }
             catch (SocketException)
@@ -343,12 +372,12 @@ namespace WindowsFormsApp2
         {
             try
             {
-                this.BackColor = Color.Green;
-
-                string QUERY1 = "1" + "-" + DATE.Text;
-                byte[] mensaje = System.Text.Encoding.ASCII.GetBytes(QUERY1);
-
-                server.Send(mensaje);
+                if(NAME.Text != "" && DATE.Text != "")
+                {
+                    string QUERY1 = "1" + "-" + DATE.Text;
+                    byte[] mensaje = System.Text.Encoding.ASCII.GetBytes(QUERY1);
+                    server.Send(mensaje);
+                }
             }
             catch (SocketException)
             {
@@ -361,12 +390,12 @@ namespace WindowsFormsApp2
         {
             try
             {
-                this.BackColor = Color.Green;
-
-                string QUERY2 = "2" + "-" + DATE.Text;
-                byte[] mensaje = System.Text.Encoding.ASCII.GetBytes(QUERY2);
-
-                server.Send(mensaje);  
+                if (NAME.Text != "" && DATE.Text != "")
+                {
+                    string QUERY2 = "2" + "-" + DATE.Text;
+                    byte[] mensaje = System.Text.Encoding.ASCII.GetBytes(QUERY2);
+                    server.Send(mensaje);
+                } 
             }
             catch (SocketException)
             {
@@ -379,12 +408,12 @@ namespace WindowsFormsApp2
         {
             try
             {
-                this.BackColor = Color.Green;
-
-                string QUERY3 = "3" + "-" + NAME.Text + "-" + DATE.Text;//probar con 03/10/2022
-                byte[] mensaje = System.Text.Encoding.ASCII.GetBytes(QUERY3);
-
-                server.Send(mensaje);
+                if (NAME.Text != "" && DATE.Text != "")
+                {
+                    string QUERY3 = "3" + "-" + NAME.Text + "-" + DATE.Text;//probar con 03/10/2022
+                    byte[] mensaje = System.Text.Encoding.ASCII.GetBytes(QUERY3);
+                    server.Send(mensaje);
+                }
             }
             catch (SocketException)
             {
@@ -397,8 +426,6 @@ namespace WindowsFormsApp2
         {
             try
             {
-                this.BackColor = Color.Green;
-
                 string CERRAR = "5" + "-" + USERNAME.Text;
                 byte[] mensaje = System.Text.Encoding.ASCII.GetBytes(CERRAR);
 
@@ -407,9 +434,7 @@ namespace WindowsFormsApp2
                 atender.Abort();
 
                 server.Shutdown(SocketShutdown.Both);
-                this.BackColor = Color.Gray;
-                lConectados.BackColor = Color.Gray;
-                menuStrip1.BackColor = Color.Gray;
+                DESCONECTAR.Enabled = false;
                 label3.Visible = false;
                 label4.Visible = false;
                 label5.Visible = false;
@@ -418,12 +443,20 @@ namespace WindowsFormsApp2
                 QUERY1.Visible = false;
                 QUERY2.Visible = false;
                 QUERY3.Visible = false;
+                Invitar.Visible = false;
+                Cancelar.Visible = false;
+                label6.Visible = false;
+                label7.Visible = false;
+                label8.Visible = false;
+                label9.Visible = false;
                 lConectados.Visible = false;
+                eliminarBtn.Visible = false;
                 USERNAME.Enabled = true;
                 PASSWORD.Enabled = true;
                 SIGNIN.Enabled = true;
                 LOGIN.Enabled = true;
                 server.Close();
+                atendiendo = false;
             }
             catch (SocketException)
             {
@@ -432,7 +465,7 @@ namespace WindowsFormsApp2
             }
  
         }
-        private List<String> dameListaConectados(string lista, int nConectados)
+        private List<String> dameListaConectados(string lista, int nConectados)         //funcion para generar la lista de conectados
         {
             List<String> conectados = new List<String>();
             string [] lconectados = lista.Split('-');
@@ -450,13 +483,12 @@ namespace WindowsFormsApp2
             }
             return conectados;
         }
-        public void item_Click(object sender, EventArgs e)
+        public void item_Click(object sender, EventArgs e)      //añadir a usuarios para invitarlos a jugar
         {
             ToolStripMenuItem item = sender as ToolStripMenuItem;
-            MessageBox.Show("Se enviara una invitacion a " + item.Text);
             listaInvitacion(item.Text);
         }
-        private void listaInvitacion (string nombre)
+        private void listaInvitacion (string nombre)        //guarda la informacion de la gente que vas a invitar a jugar
         {
             label6.Visible = true;
             Invitar.Enabled = true;
@@ -486,7 +518,7 @@ namespace WindowsFormsApp2
                     break;
             }
         }
-        private void Invitar_Click(object sender, EventArgs e)
+        private void Invitar_Click(object sender, EventArgs e)      //envia las invitaciones
         {
             label6.Visible = true;
             if(invitados != null)
@@ -496,14 +528,14 @@ namespace WindowsFormsApp2
                 server.Send(mensaje);
             }
         }
-        public void enviarMensaje()
+        public void enviarMensaje()     //envia los mensajes de chat al servidor
         {
-            string peticion = "8-" + partida + "-" + USERNAME.Text + ": " + Form2.instance.tB.Text;
+            string peticion = "12-" + partida + "-" + USERNAME.Text + ": " + Form2.instance.tB.Text;
             byte[] enviar = System.Text.Encoding.ASCII.GetBytes(peticion);
             server.Send(enviar);
         }
 
-        private void Cancelar_Click(object sender, EventArgs e)
+        private void Cancelar_Click(object sender, EventArgs e)     //elimina a la gente de la lista de invitacion
         {
             label6.Visible = false;
             Invitar.Enabled = false;
@@ -517,21 +549,65 @@ namespace WindowsFormsApp2
             label9.Visible = false;
             invitados = null;
         }
-        public void START()
-        {
+        public void START()     //avisa al servidor de que inicie la partida
+        {   
             string peticion = "8-";
             byte[] enviar = System.Text.Encoding.ASCII.GetBytes(peticion);
             server.Send(enviar);
         }
-        public void golpePelota()
+        public void golpePelota()       //avisa al servidor de que se ha golpeado la pelota
         {
             string peticion = "9-" + Convert.ToString(Form2.instance.nVely);
             byte[] enviar = System.Text.Encoding.ASCII.GetBytes(peticion);
             server.Send(enviar);
         }
-        public void movimiento(string direccion, int jugador)
+        public void movimiento(string direccion, int jugador)       //actualiza la posicion de un personaje cuandos e mueve
         {
             string peticion = "10-" + direccion + "-" + Convert.ToString(jugador);
+            byte[] enviar = System.Text.Encoding.ASCII.GetBytes(peticion);
+            server.Send(enviar);
+        }
+
+        private void eliminarBtn_Click(object sender, EventArgs e)      //boton para eliminar la cuenta del cliente
+        {
+            if (MessageBox.Show("Esta seguro/a de que desea eliminar esta cuenta?", "Eliminar cuenta", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                string peticion = "11-" + USERNAME.Text;
+                byte[] enviar = System.Text.Encoding.ASCII.GetBytes(peticion);
+                server.Send(enviar);
+                string CERRAR = "5" + "-" + USERNAME.Text;
+                byte[] mensaje = System.Text.Encoding.ASCII.GetBytes(CERRAR);
+                server.Send(mensaje);
+                atender.Abort();
+                server.Shutdown(SocketShutdown.Both);
+                DESCONECTAR.Enabled = false;
+                label3.Visible = false;
+                label4.Visible = false;
+                label5.Visible = false;
+                NAME.Visible = false;
+                DATE.Visible = false;
+                QUERY1.Visible = false;
+                QUERY2.Visible = false;
+                QUERY3.Visible = false;
+                Invitar.Visible = false;
+                Cancelar.Visible = false;
+                label6.Visible = false;
+                label7.Visible = false;
+                label8.Visible = false;
+                label9.Visible = false;
+                lConectados.Visible = false;
+                eliminarBtn.Visible = false;
+                USERNAME.Enabled = true;
+                PASSWORD.Enabled = true;
+                SIGNIN.Enabled = true;
+                LOGIN.Enabled = true;
+                server.Close();
+                atendiendo = false;
+            }
+        }
+        public void finalPartida(int t, int puntos, int puntos2, int ganador, string fecha)     //envia la informacion de la partida una vez terminada al servidor
+        {
+            string peticion = "13-" + ganador + "-" + puntos + "-"  + puntos2 + "-" + t + "-" + fecha;
             byte[] enviar = System.Text.Encoding.ASCII.GetBytes(peticion);
             server.Send(enviar);
         }

@@ -37,19 +37,19 @@
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.panel1 = new System.Windows.Forms.Panel();
+            this.pilota = new System.Windows.Forms.PictureBox();
             this.button1 = new System.Windows.Forms.Button();
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.CLOSE = new System.Windows.Forms.Button();
+            this.J2 = new System.Windows.Forms.PictureBox();
             this.START = new System.Windows.Forms.Button();
+            this.J4 = new System.Windows.Forms.PictureBox();
+            this.J1 = new System.Windows.Forms.PictureBox();
             this.jugador4 = new System.Windows.Forms.Label();
+            this.J3 = new System.Windows.Forms.PictureBox();
             this.jugador3 = new System.Windows.Forms.Label();
             this.jugador2 = new System.Windows.Forms.Label();
             this.jugador1 = new System.Windows.Forms.Label();
-            this.pilota = new System.Windows.Forms.PictureBox();
-            this.J2 = new System.Windows.Forms.PictureBox();
-            this.J4 = new System.Windows.Forms.PictureBox();
-            this.J1 = new System.Windows.Forms.PictureBox();
-            this.J3 = new System.Windows.Forms.PictureBox();
             this.fondo = new System.Windows.Forms.PictureBox();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pilota)).BeginInit();
@@ -63,6 +63,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
+            this.label1.BackColor = System.Drawing.Color.White;
             this.label1.Location = new System.Drawing.Point(12, 402);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(0, 13);
@@ -71,6 +72,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
+            this.label2.BackColor = System.Drawing.Color.White;
             this.label2.Location = new System.Drawing.Point(12, 382);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(0, 13);
@@ -79,6 +81,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
+            this.label3.BackColor = System.Drawing.Color.White;
             this.label3.Location = new System.Drawing.Point(12, 362);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(0, 13);
@@ -87,6 +90,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
+            this.label4.BackColor = System.Drawing.Color.White;
             this.label4.Location = new System.Drawing.Point(12, 342);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(0, 13);
@@ -142,6 +146,17 @@
             this.panel1.Size = new System.Drawing.Size(800, 450);
             this.panel1.TabIndex = 19;
             // 
+            // pilota
+            // 
+            this.pilota.BackColor = System.Drawing.Color.Transparent;
+            this.pilota.Image = global::WindowsFormsApp2.Properties.Resources.png_clipart_tennis_balls_green_tennis_glass_white;
+            this.pilota.Location = new System.Drawing.Point(387, 213);
+            this.pilota.Name = "pilota";
+            this.pilota.Size = new System.Drawing.Size(37, 37);
+            this.pilota.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pilota.TabIndex = 31;
+            this.pilota.TabStop = false;
+            // 
             // button1
             // 
             this.button1.Location = new System.Drawing.Point(214, 417);
@@ -150,6 +165,7 @@
             this.button1.TabIndex = 29;
             this.button1.Text = "Enviar";
             this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // textBox3
             // 
@@ -168,6 +184,18 @@
             this.CLOSE.UseVisualStyleBackColor = true;
             this.CLOSE.Click += new System.EventHandler(this.CLOSE_Click);
             // 
+            // J2
+            // 
+            this.J2.BackColor = System.Drawing.Color.Transparent;
+            this.J2.Image = global::WindowsFormsApp2.Properties.Resources.jugador;
+            this.J2.Location = new System.Drawing.Point(139, 283);
+            this.J2.Name = "J2";
+            this.J2.Size = new System.Drawing.Size(51, 67);
+            this.J2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.J2.TabIndex = 6;
+            this.J2.TabStop = false;
+            this.J2.Visible = false;
+            // 
             // START
             // 
             this.START.BackColor = System.Drawing.Color.Coral;
@@ -181,6 +209,30 @@
             this.START.UseVisualStyleBackColor = false;
             this.START.Click += new System.EventHandler(this.START_Click);
             // 
+            // J4
+            // 
+            this.J4.BackColor = System.Drawing.Color.Transparent;
+            this.J4.Image = global::WindowsFormsApp2.Properties.Resources.jugador;
+            this.J4.Location = new System.Drawing.Point(654, 213);
+            this.J4.Name = "J4";
+            this.J4.Size = new System.Drawing.Size(51, 67);
+            this.J4.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.J4.TabIndex = 8;
+            this.J4.TabStop = false;
+            this.J4.Visible = false;
+            // 
+            // J1
+            // 
+            this.J1.BackColor = System.Drawing.Color.Transparent;
+            this.J1.Image = global::WindowsFormsApp2.Properties.Resources.jugador;
+            this.J1.Location = new System.Drawing.Point(197, 115);
+            this.J1.Name = "J1";
+            this.J1.Size = new System.Drawing.Size(51, 67);
+            this.J1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.J1.TabIndex = 5;
+            this.J1.TabStop = false;
+            this.J1.Visible = false;
+            // 
             // jugador4
             // 
             this.jugador4.AutoSize = true;
@@ -192,6 +244,18 @@
             this.jugador4.Size = new System.Drawing.Size(43, 31);
             this.jugador4.TabIndex = 25;
             this.jugador4.Text = "J4";
+            // 
+            // J3
+            // 
+            this.J3.BackColor = System.Drawing.Color.Transparent;
+            this.J3.Image = global::WindowsFormsApp2.Properties.Resources.jugador;
+            this.J3.Location = new System.Drawing.Point(531, 283);
+            this.J3.Name = "J3";
+            this.J3.Size = new System.Drawing.Size(51, 67);
+            this.J3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.J3.TabIndex = 7;
+            this.J3.TabStop = false;
+            this.J3.Visible = false;
             // 
             // jugador3
             // 
@@ -228,65 +292,6 @@
             this.jugador1.Size = new System.Drawing.Size(46, 31);
             this.jugador1.TabIndex = 21;
             this.jugador1.Text = "Tu";
-            // 
-            // pilota
-            // 
-            this.pilota.BackColor = System.Drawing.Color.Transparent;
-            this.pilota.Image = global::WindowsFormsApp2.Properties.Resources.png_clipart_tennis_balls_green_tennis_glass_white;
-            this.pilota.Location = new System.Drawing.Point(387, 213);
-            this.pilota.Name = "pilota";
-            this.pilota.Size = new System.Drawing.Size(37, 37);
-            this.pilota.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pilota.TabIndex = 31;
-            this.pilota.TabStop = false;
-            // 
-            // J2
-            // 
-            this.J2.BackColor = System.Drawing.Color.Transparent;
-            this.J2.Image = global::WindowsFormsApp2.Properties.Resources.jugador;
-            this.J2.Location = new System.Drawing.Point(139, 283);
-            this.J2.Name = "J2";
-            this.J2.Size = new System.Drawing.Size(51, 67);
-            this.J2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.J2.TabIndex = 6;
-            this.J2.TabStop = false;
-            this.J2.Visible = false;
-            // 
-            // J4
-            // 
-            this.J4.BackColor = System.Drawing.Color.Transparent;
-            this.J4.Image = global::WindowsFormsApp2.Properties.Resources.jugador;
-            this.J4.Location = new System.Drawing.Point(654, 213);
-            this.J4.Name = "J4";
-            this.J4.Size = new System.Drawing.Size(51, 67);
-            this.J4.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.J4.TabIndex = 8;
-            this.J4.TabStop = false;
-            this.J4.Visible = false;
-            // 
-            // J1
-            // 
-            this.J1.BackColor = System.Drawing.Color.Transparent;
-            this.J1.Image = global::WindowsFormsApp2.Properties.Resources.jugador;
-            this.J1.Location = new System.Drawing.Point(197, 115);
-            this.J1.Name = "J1";
-            this.J1.Size = new System.Drawing.Size(51, 67);
-            this.J1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.J1.TabIndex = 5;
-            this.J1.TabStop = false;
-            this.J1.Visible = false;
-            // 
-            // J3
-            // 
-            this.J3.BackColor = System.Drawing.Color.Transparent;
-            this.J3.Image = global::WindowsFormsApp2.Properties.Resources.jugador;
-            this.J3.Location = new System.Drawing.Point(531, 283);
-            this.J3.Name = "J3";
-            this.J3.Size = new System.Drawing.Size(51, 67);
-            this.J3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.J3.TabIndex = 7;
-            this.J3.TabStop = false;
-            this.J3.Visible = false;
             // 
             // fondo
             // 
