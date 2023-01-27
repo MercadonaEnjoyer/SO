@@ -89,7 +89,7 @@ namespace WindowsFormsApp2
                     break;
             }
             pilota.Location = new Point(384, 209); //posicion inicial de la pelota
-            velocidad = -4;
+            velocidad = -3;
             this.KeyPreview = true;
         }
 
@@ -148,7 +148,7 @@ namespace WindowsFormsApp2
                 puntuacio1 = puntuacio1 + 1;
                 textBox1.Text = Convert.ToString(puntuacio1);
                 pilota.Location = new Point(385, 209); //reinicializa la posicion de la pelota
-                velocidad = 7;
+                velocidad = 3;
                 System.Threading.Thread.Sleep(2000); //espera un tiempo antes de volver a sacar
                 if (puntuacio1 == 7) //el equipo 1 llega a 7 puntos y envia la informacion del final de partida
                 {
@@ -166,7 +166,7 @@ namespace WindowsFormsApp2
                 puntuacio2 = puntuacio2 + 1;
                 textBox2.Text = Convert.ToString(puntuacio2);
                 pilota.Location = new Point(385, 209); //inicializa la pelota
-                velocidad = -7;
+                velocidad = -3;
                 System.Threading.Thread.Sleep(2000); //espera
                 if (puntuacio2 == 7) //victoria equipo 2 envia informacion
                 {
